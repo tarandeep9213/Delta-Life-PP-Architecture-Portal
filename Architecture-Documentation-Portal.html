@@ -1,0 +1,2740 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delta Life Insurance - QLARP Automation Architecture Explorer</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Mermaid.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+    
+    <style>
+        /* Base Variables & Theme */
+        :root {
+            --font-heading: 'Outfit', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            --font-mono: 'Fira Code', monospace;
+            
+            /* Light Theme Palette */
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f1f5f9;
+            --bg-sidebar: #0f172a;
+            --sidebar-text: #94a3b8;
+            --sidebar-active: #ffffff;
+            --sidebar-hover: #1e293b;
+            
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-tertiary: #94a3b8;
+            
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --accent-light: #eff6ff;
+            --accent-glow: rgba(37, 99, 235, 0.15);
+            
+            --success: #10b981;
+            --success-light: #ecfdf5;
+            --success-border: #a7f3d0;
+            
+            --warning: #f59e0b;
+            --warning-light: #fffbeb;
+            --warning-border: #fde68a;
+            
+            --danger: #ef4444;
+            --danger-light: #fef2f2;
+            --danger-border: #fca5a5;
+            
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            
+            --radius-sm: 6px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        [data-theme="dark"] {
+            /* Dark Theme Palette */
+            --bg-primary: #090d16;
+            --bg-secondary: #111827;
+            --bg-tertiary: #1f2937;
+            --bg-sidebar: #030712;
+            --sidebar-text: #6b7280;
+            --sidebar-active: #f9fafb;
+            --sidebar-hover: #111827;
+            
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-tertiary: #6b7280;
+            
+            --accent: #3b82f6;
+            --accent-hover: #60a5fa;
+            --accent-light: #1e3a8a;
+            --accent-glow: rgba(59, 130, 246, 0.25);
+            
+            --success: #10b981;
+            --success-light: #064e3b;
+            --success-border: #047857;
+            
+            --warning: #f59e0b;
+            --warning-light: #78350f;
+            --warning-border: #b45309;
+            
+            --danger: #ef4444;
+            --danger-light: #7f1d1d;
+            --danger-border: #b91c1c;
+            
+            --border: #374151;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Base Reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: var(--transition);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        a:hover {
+            color: var(--accent-hover);
+        }
+        
+        code {
+            font-family: var(--font-mono);
+            background-color: var(--bg-tertiary);
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85em;
+            color: var(--accent);
+            border: 1px solid var(--border);
+            word-break: break-all;
+        }
+        
+        pre code {
+            display: block;
+            padding: 1rem;
+            overflow-x: auto;
+            color: var(--text-primary);
+        }
+        
+        /* Layout Structure */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-sidebar);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            border-right: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        
+        .sidebar-brand {
+            padding: 1.5rem;
+            border-bottom: 1px solid #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .sidebar-brand h2 {
+            color: #ffffff;
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        .sidebar-brand span {
+            color: var(--accent);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            border: 1px solid var(--accent);
+            padding: 1px 4px;
+            border-radius: 4px;
+        }
+        
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 0;
+        }
+        
+        .sidebar-nav ul {
+            list-style: none;
+        }
+        
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: var(--sidebar-text);
+            font-weight: 500;
+            font-size: 0.9rem;
+            border-left: 4px solid transparent;
+            transition: var(--transition);
+        }
+        
+        .sidebar-nav a:hover, .sidebar-nav li.active a {
+            color: var(--sidebar-active);
+            background-color: var(--sidebar-hover);
+        }
+        
+        .sidebar-nav li.active a {
+            border-left-color: var(--accent);
+            background-color: var(--sidebar-hover);
+        }
+        
+        .sidebar-nav-icon {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+            flex-shrink: 0;
+        }
+        
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #1f2937;
+            font-size: 0.75rem;
+            color: var(--sidebar-text);
+        }
+        
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        
+        .header {
+            height: var(--header-height);
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 99;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+        
+        .header-title h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .search-container {
+            position: relative;
+            width: 280px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.5rem 1rem 0.5rem 2.25rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            fill: var(--text-tertiary);
+        }
+        
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        
+        .theme-toggle:hover {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .theme-toggle-icon {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .btn:hover {
+            background-color: var(--bg-tertiary);
+            border-color: var(--text-secondary);
+        }
+        
+        .btn-primary {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: #ffffff;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+            border-color: var(--accent-hover);
+            color: #ffffff;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+        }
+        
+        /* Container and Content */
+        .content-container {
+            padding: 2.5rem 2rem;
+            max-width: 1450px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        .section {
+            margin-bottom: 4.5rem;
+            scroll-margin-top: calc(var(--header-height) + 1.5rem);
+        }
+        
+        .section-header {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .section-header h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            position: relative;
+        }
+        
+        /* Info Cards and Panels */
+        .card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            box-shadow: var(--shadow);
+        }
+        
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
+        }
+        
+        .kpi-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border-top: 4px solid var(--accent);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-top-width: 6px;
+        }
+        
+        .kpi-value {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin: 0.25rem 0;
+            font-family: var(--font-heading);
+        }
+        
+        .kpi-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Alert Banners */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid transparent;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .alert-success {
+            background-color: var(--success-light);
+            border-color: var(--success-border);
+            color: var(--success);
+        }
+        
+        .alert-warning {
+            background-color: var(--warning-light);
+            border-color: var(--warning-border);
+            color: var(--warning);
+        }
+        
+        .alert-danger {
+            background-color: var(--danger-light);
+            border-color: var(--danger-border);
+            color: var(--danger);
+        }
+        
+        .alert-title {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge-success { background-color: var(--success-light); color: var(--success); border: 1px solid var(--success-border); }
+        .badge-warning { background-color: var(--warning-light); color: var(--warning); border: 1px solid var(--warning-border); }
+        .badge-danger { background-color: var(--danger-light); color: var(--danger); border: 1px solid var(--danger-border); }
+        .badge-info { background-color: var(--accent-light); color: var(--accent); border: 1px solid var(--border); }
+        
+        .rag-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .rag-red { background-color: var(--danger); box-shadow: 0 0 8px var(--danger); }
+        .rag-amber { background-color: var(--warning); box-shadow: 0 0 8px var(--warning); }
+        .rag-green { background-color: var(--success); box-shadow: 0 0 8px var(--success); }
+        
+        /* Collapsible List Elements */
+        .collapsible-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background-color: var(--bg-secondary);
+            margin-bottom: 1rem;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+        
+        .collapsible-header {
+            padding: 1.25rem 1.5rem;
+            background-color: var(--bg-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+            transition: var(--transition);
+        }
+        
+        .collapsible-header:hover {
+            background-color: var(--bg-primary);
+        }
+        
+        .collapsible-title-block {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+        
+        .collapsible-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            font-family: var(--font-heading);
+        }
+        
+        .collapsible-arrow {
+            width: 18px;
+            height: 18px;
+            transition: var(--transition);
+            fill: var(--text-secondary);
+        }
+        
+        .collapsible-card.expanded .collapsible-arrow {
+            transform: rotate(180deg);
+        }
+        
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: var(--transition);
+            border-top: 0 solid var(--border);
+        }
+        
+        .collapsible-card.expanded .collapsible-content {
+            max-height: 1500px;
+            border-top-width: 1px;
+        }
+        
+        .collapsible-inner {
+            padding: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        /* Split Details Grid */
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .details-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .details-row {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+        
+        .details-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+        
+        .details-value {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+        
+        /* Tables styling */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin: 1.5rem 0;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.85rem;
+            background-color: var(--bg-secondary);
+        }
+        
+        th {
+            background-color: var(--bg-tertiary);
+            font-family: var(--font-heading);
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+        
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tr:hover td {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        /* Interactive Matrix Filter and Search Highlight */
+        .highlight-match {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--text-primary);
+            font-weight: 600;
+            padding: 0px 2px;
+            border-radius: 2px;
+        }
+        
+        /* Mermaid Drawing Box Styling */
+        .mermaid-container {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin: 1.5rem 0;
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .mermaid-draw {
+            width: 100%;
+            min-height: 200px;
+        }
+        
+        /* Tabs within a card */
+        .tabs-header {
+            display: flex;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-family: var(--font-heading);
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-secondary);
+            border-bottom: 2px solid transparent;
+            transition: var(--transition);
+        }
+        
+        .tab-btn:hover, .tab-btn.active {
+            color: var(--accent);
+        }
+        
+        .tab-btn.active {
+            border-bottom-color: var(--accent);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Risk Heat Map styling */
+        .risk-map-grid {
+            display: grid;
+            grid-template-columns: 120px repeat(3, 1fr);
+            gap: 0.5rem;
+            max-width: 700px;
+            margin: 1.5rem 0;
+        }
+        
+        .risk-map-header {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border-radius: 4px;
+            padding: 0.5rem;
+            text-align: center;
+        }
+        
+        .risk-map-label {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-radius: 4px;
+            padding: 0.5rem;
+        }
+        
+        .risk-map-cell {
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            min-height: 80px;
+            border: 2px solid transparent;
+            font-weight: 700;
+            position: relative;
+        }
+        
+        .risk-map-cell:hover {
+            transform: scale(1.03);
+            box-shadow: var(--shadow);
+            z-index: 2;
+        }
+        
+        .risk-map-cell.selected {
+            border-color: var(--text-primary);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        
+        .risk-map-cell-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+            opacity: 0.8;
+        }
+        
+        .risk-map-cell-count {
+            font-size: 1.5rem;
+            font-family: var(--font-heading);
+        }
+        
+        .risk-map-cell-ids {
+            font-size: 0.65rem;
+            font-weight: 500;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+            text-align: center;
+        }
+        
+        .heat-critical {
+            background-color: rgba(239, 100, 100, 0.25);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+        .heat-high {
+            background-color: rgba(245, 158, 11, 0.25);
+            color: #d97706;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+        .heat-medium {
+            background-color: rgba(234, 179, 8, 0.2);
+            color: #b45309;
+            border: 1px solid rgba(234, 179, 8, 0.4);
+        }
+        .heat-low {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #047857;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+        
+        /* Filter Controls Group */
+        .filter-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+        
+        .filter-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+        
+        /* Slide-Out Detail Panel */
+        .detail-panel-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        
+        .detail-panel {
+            position: fixed;
+            top: 0;
+            right: -500px;
+            width: 500px;
+            max-width: 90vw;
+            height: 100vh;
+            background-color: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            box-shadow: var(--shadow-lg);
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .detail-panel-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--bg-tertiary);
+        }
+        
+        .detail-panel-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            font-family: var(--font-heading);
+            color: var(--text-primary);
+        }
+        
+        .detail-panel-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+        
+        .detail-panel-close:hover {
+            background-color: var(--border);
+            color: var(--text-primary);
+        }
+        
+        .detail-panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+        
+        .detail-panel-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .detail-panel-section-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .detail-panel-text {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+        
+        /* Interactive Dependency Graph View */
+        .dep-graph-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .dep-graph-title-select {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .dep-node-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1rem;
+            background-color: var(--bg-primary);
+            border-radius: var(--radius);
+            border: 1px dashed var(--border);
+        }
+        
+        .dep-node-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        
+        .dep-node-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.75rem 1rem;
+            min-width: 180px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .dep-node-box:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+            transform: scale(1.02);
+        }
+        
+        .dep-node-box.active-node {
+            background-color: var(--accent-light);
+            border-color: var(--accent);
+            color: var(--text-primary);
+            font-weight: 700;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        
+        .dep-node-arrow-vertical {
+            width: 2px;
+            height: 25px;
+            background-color: var(--text-tertiary);
+            position: relative;
+        }
+        
+        .dep-node-arrow-vertical::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid var(--text-tertiary);
+        }
+        
+        .dep-node-desc {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background-color: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            width: 100%;
+            text-align: center;
+        }
+        
+        /* Node Explorer Trigger Badge */
+        .explore-node-badge {
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .explore-node-badge:hover {
+            color: var(--accent-hover);
+        }
+
+        /* Hover Tooltip */
+        #dynamic-tooltip {
+            position: absolute;
+            background-color: rgba(15, 23, 42, 0.95);
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 9999;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+            max-width: 280px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            line-height: 1.4;
+        }
+        
+        /* Print Styles */
+        @media print {
+            .sidebar, .header, .theme-toggle, .btn, .search-container, .filter-controls, .print-btn, .detail-panel-overlay, .detail-panel {
+                display: none !important;
+            }
+            
+            .main-content {
+                margin-left: 0 !important;
+            }
+            
+            .content-container {
+                max-width: 100% !important;
+                padding: 0 !important;
+            }
+            
+            .collapsible-content {
+                max-height: none !important;
+                border-top-width: 1px !important;
+            }
+            
+            .collapsible-arrow {
+                display: none !important;
+            }
+            
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                font-size: 10pt;
+            }
+            
+            .card, .collapsible-card, .dep-graph-card {
+                box-shadow: none !important;
+                border: 1px solid #000000 !important;
+                page-break-inside: avoid;
+                margin-bottom: 2rem;
+            }
+            
+            .section {
+                page-break-before: always;
+            }
+            
+            .risk-map-grid {
+                max-width: 100% !important;
+                page-break-inside: avoid;
+            }
+            
+            .mermaid-container {
+                border: 1px solid #000000 !important;
+                page-break-inside: avoid;
+            }
+        }
+        
+        /* Mobile Responsive adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .header {
+                padding: 0 1rem;
+            }
+            
+            .header-title h1 {
+                font-size: 1rem;
+            }
+            
+            .search-container {
+                width: 160px;
+            }
+            
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <svg class="sidebar-nav-icon" style="color:var(--accent);" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            <div>
+                <h2>QLARP Explorer</h2>
+                <span>Tech Architect Portal</span>
+            </div>
+        </div>
+        <div class="sidebar-nav">
+            <ul>
+                <li class="active"><a href="#sec-summary"><svg class="sidebar-nav-icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> Executive Summary</a></li>
+                <li><a href="#sec-overview"><svg class="sidebar-nav-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2zm0 8H7v-2h10v2z"/></svg> Solution Overview</a></li>
+                <li><a href="#sec-architecture"><svg class="sidebar-nav-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg> High-Level Architecture</a></li>
+                <li><a href="#sec-workflow"><svg class="sidebar-nav-icon" viewBox="0 0 24 24"><path d="M8 4l8 8-8 8V4z"/></svg> E2E Workflow Diagram</a></li>
+                <li><a href="#sec-coverage"><svg class="sidebar-nav-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg> District Coverage Matrix</a></li>
+                <li><a href="#sec-cloud-flows"><svg class="sidebar-nav-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg> Cloud Flow Inventory</a></li>
+                <li><a href="#sec-desktop-flows"><svg class="sidebar-nav-icon" viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg> Desktop Flow Inventory</a></li>
+                <li><a href="#sec-explorer"><svg class="sidebar-nav-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg> Dependency Explorer</a></li>
+                <li><a href="#sec-integrations"><svg class="sidebar-nav-icon" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> Integration Architecture</a></li>
+                <li><a href="#sec-lineage"><svg class="sidebar-nav-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg> Data Lineage Details</a></li>
+                <li><a href="#sec-security"><svg class="sidebar-nav-icon" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg> Security & Governance</a></li>
+                <li><a href="#sec-risks"><svg class="sidebar-nav-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Risks & Heat Map</a></li>
+                <li><a href="#sec-gaps"><svg class="sidebar-nav-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg> Error Handling Gaps</a></li>
+                <li><a href="#sec-roadmap"><svg class="sidebar-nav-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Future Roadmap</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            <p>Engagement: Delta Life</p>
+            <p>Auditor: Damco Solutions</p>
+            <p>Version: 2.0 (Enhanced Explorer)</p>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="main-content">
+        
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-title">
+                <h1>QLARP Architecture Documentation Explorer</h1>
+            </div>
+            <div class="header-actions">
+                <div class="search-container">
+                    <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    <input type="text" class="search-input" id="global-search" placeholder="Global search across portal...">
+                </div>
+                <button class="theme-toggle" id="theme-toggle-btn" title="Toggle Theme">
+                    <svg class="theme-toggle-icon" id="theme-icon" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+                </button>
+                <button class="btn btn-primary" onclick="window.print()" title="Export document to PDF or Print">
+                    <svg class="sidebar-nav-icon" viewBox="0 0 24 24" style="fill:white;"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+                    Export PDF
+                </button>
+            </div>
+        </div>
+        
+        <!-- CONTAINER -->
+        <div class="content-container">
+            
+            <!-- ARCHITECTURE KPI DASHBOARD -->
+            <div class="kpi-grid">
+                <div class="kpi-card" style="border-top-color: var(--accent);" onclick="document.getElementById('sec-cloud-flows').scrollIntoView();" data-tooltip="Total active cloud flows polling branch network drives.">
+                    <div class="kpi-value" id="count-cloud-flows">25</div>
+                    <div class="kpi-label">Cloud Flows</div>
+                </div>
+                <div class="kpi-card" style="border-top-color: var(--success);" onclick="document.getElementById('sec-desktop-flows').scrollIntoView();" data-tooltip="Production-intent & utility desktop flows identified in the unmanaged folder.">
+                    <div class="kpi-value" id="count-desktop-flows">14</div>
+                    <div class="kpi-label">Desktop Flows</div>
+                </div>
+                <div class="kpi-card" style="border-top-color: #a855f7;" onclick="document.getElementById('sec-integrations').scrollIntoView();" data-tooltip="Active interface connections (File System, QLAdmin UI, Printing, Adobe CLI, iSeries BranchList).">
+                    <div class="kpi-value" id="count-integrations">5</div>
+                    <div class="kpi-label">Integrations</div>
+                </div>
+                <div class="kpi-card" style="border-top-color: var(--warning);" onclick="document.getElementById('sec-explorer').scrollIntoView();" data-tooltip="Systemic dependencies including gatekeepers, drives, and credentials.">
+                    <div class="kpi-value" id="count-dependencies">8</div>
+                    <div class="kpi-label">Dependencies</div>
+                </div>
+                <div class="kpi-card" style="border-top-color: var(--danger);" onclick="document.getElementById('sec-risks').scrollIntoView();" data-tooltip="Audit-logged architecture risks. Click to view risk register.">
+                    <div class="kpi-value" id="count-risks">15</div>
+                    <div class="kpi-label">Open Risks</div>
+                </div>
+            </div>
+
+            <!-- EXECUTIVE SUMMARY -->
+            <div class="section" id="sec-summary">
+                <div class="section-header">
+                    <h2>1. Executive Summary & Stabilization Roadmap</h2>
+                    <span class="badge badge-danger">Architecture Audit</span>
+                </div>
+                <div class="card">
+                    <p style="font-size: 1.05rem; line-height: 1.65; margin-bottom: 1.5rem;">
+                        This portal serves as an interactive reverse-engineered architecture explorer of the <strong>QLARP Power Automate Estate</strong> at <strong>Delta Life Insurance</strong>. The primary function of this ecosystem is to automate <strong>scanned document routing</strong>: when local branch operators scan physical applications or scans, cloud flows detect them within 60 seconds, apply a strict semicolon-separated index mapping string to the filename, and move files to ingestion queues for import into the <strong>ImageRight Document Management System (DMS)</strong>.
+                    </p>
+                    
+                    <div class="alert alert-danger" style="display: flex; flex-direction: column;">
+                        <div class="alert-title">Critical Governance and Resilience Findings</div>
+                        <p style="margin-bottom: 0.5rem;"><strong>1. Zero Error Resilience:</strong> Neither cloud triggers nor child desktop flows contain error-catching (Try-Catch / Run-After configuration) or notification triggers. Downtimes or skipped files fail silently.</p>
+                        <p style="margin-bottom: 0.5rem;"><strong>2. Attended Mode Session Dependency:</strong> Flows execute in Attended Desktop Mode, requiring a Windows machine session to remain permanently unlocked. Sleep triggers, logouts, or patches halt processing silently.</p>
+                        <p style="margin-bottom: 0.5rem;"><strong>3. Service Account Single-Point-of-Failure:</strong> All core integrations and directory connector authorizations use David Weaver's personal account (<code>dweaver@delta-life.com</code>).</p>
+                        <p><strong>4. Directory Compounding Loop Bug:</strong> Suffix addition in renaming loops contains a compounding variables defect, resulting in extremely long filenames for multi-file processing batches.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SOLUTION OVERVIEW -->
+            <div class="section" id="sec-overview">
+                <div class="section-header">
+                    <h2>2. Solution Overview</h2>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:1rem;">Operational Scope & Metadata</h3>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem; margin-bottom:1.5rem;">
+                        <div class="details-row">
+                            <div class="details-label">Publisher / Solution Owner</div>
+                            <div class="details-value">Damco Solutions / default publisher</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-label">Power Platform Tenant Space</div>
+                            <div class="details-value">DEFAULT - shared tenant space (Lack of sandboxing / security risk)</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-label">Solution Package Name</div>
+                            <div class="details-value">QLA_RPA_Automation_1_0_0_1 (25 Cloud Flows + 1 Desktop Flow)</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-label">Desktop Flow Library folder</div>
+                            <div class="details-value">DesktopWorkflows (107 total flows, unmanaged version clutter)</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-label">Environment Variables</div>
+                            <div class="details-value" style="color:var(--text-tertiary); font-style:italic;">Not identified from solution package.</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-label">Connection References</div>
+                            <div class="details-value">2 references (File System, UIFlow Desktop Flows)</div>
+                        </div>
+                    </div>
+                    <p style="line-height:1.65; font-size:0.95rem; color:var(--text-secondary);">
+                        The system is bifurcated: **QLA_RPA_Automation_1_0_0_1** is the production-intent unmanaged package containing the core folder monitors. **DesktopWorkflows** represents the active unmanaged development path, housing 107 total flow copies (of which 36 are identified as dev/test copies, backups, or raw stubs that remain active).
+                    </p>
+                </div>
+            </div>
+
+            <!-- HIGH-LEVEL SYSTEM ARCHITECTURE -->
+            <div class="section" id="sec-architecture">
+                <div class="section-header">
+                    <h2>3. High-Level Architecture</h2>
+                </div>
+                <div class="card">
+                    <p style="margin-bottom:1.5rem; line-height:1.6; font-size:0.95rem; color:var(--text-secondary);">
+                        The diagram below traces the physical data pipeline. Documents are scanned at branch locations, landing in UNC source folders on the primary file server. An on-premises gateway routes polls to the Power Automate Cloud, which triggers the attended runner desktop flow to execute file transformations and move files to staging boundaries.
+                    </p>
+                    <div class="mermaid-container">
+                        <pre class="mermaid-src" style="display:none;">
+graph TD
+    subgraph OnPrem["On-Premises Server Network - Atlanta"]
+        Scanner["Network Document Scanner"]
+        SourceDir["UNC Source Directory"]
+        Gateway["On-Premises Data Gateway"]
+        PADMachine["Attended PAD Host Machine"]
+        DestDir["Ingestion Queues - IRMonitor"]
+        QLAdmin["QLAdmin Policy System"]
+    end
+
+    subgraph PowerPlatform["Microsoft Power Platform - Cloud"]
+        CloudFlows["25 Cloud Polling Flows"]
+        FileSystemConn["File System Connector"]
+        DesktopFlowsConn["Desktop Flows Connector"]
+    end
+
+    subgraph TargetSystem["Document Management System"]
+        ImageRight["ImageRight DMS - Applied Systems"]
+    end
+
+    Scanner -->|"Scans and writes"| SourceDir
+    SourceDir <-->|"Polls via gateway"| FileSystemConn
+    FileSystemConn -->|"Triggers"| CloudFlows
+    CloudFlows -->|"Invokes desktop flow"| DesktopFlowsConn
+    DesktopFlowsConn <-->|"Executes via gateway"| PADMachine
+    PADMachine -->|"Rename and Move files"| DestDir
+    DestDir -->|"Imports files"| ImageRight
+    PADMachine <-->|"UI Automation"| QLAdmin
+
+    style OnPrem fill:#e8f4fd,stroke:#1a73e8,color:#333
+    style PowerPlatform fill:#fef7e0,stroke:#f9ab00,color:#333
+    style TargetSystem fill:#e6f4ea,stroke:#34a853,color:#333
+                        </pre>
+                        <div class="mermaid-draw"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- END-TO-END WORKFLOW DIAGRAM -->
+            <div class="section" id="sec-workflow">
+                <div class="section-header">
+                    <h2>4. End-to-End Routing Workflow</h2>
+                </div>
+                <div class="card">
+                    <p style="margin-bottom:1.5rem; line-height:1.6; font-size:0.95rem; color:var(--text-secondary);">
+                        The routing logic parses variables dynamically to handle preferred/fire documents versus miscellaneous scans. Semicolon format parameters control how downstream index files compile metadata in the DMS layer.
+                    </p>
+                    <div class="mermaid-container">
+                        <pre class="mermaid-src" style="display:none;">
+flowchart TD
+    Start(["Network Scanner Document Drop"]) --> Watch["District UNC Folder Watcher"]
+    Watch --> Trigger{"1-Minute Recurrence Poll"}
+    Trigger -->|"New File Found"| CloudFlow["Run Cloud Flow"]
+    CloudFlow --> Split{"Split On File"}
+    Split -->|"For Each File"| InvokePAD["Invoke Desktop Flow - SA-RenameScannedApps"]
+
+    subgraph PAD["PAD Execution Machine - Attended Mode"]
+        InvokePAD --> SetVar["SetVariables - Format Date MM-dd-yyyy"]
+        SetVar --> Branch{"Check QLA_Workflow"}
+
+        Branch -->|"APPS"| RenameApps["RenameFilesApps - TempPrfd + DISTRICT + Rand5"]
+        RenameApps --> MoveApps["MoveFilesApps - To IRMonitor Apps"]
+
+        Branch -->|"MISCSCAN"| RenameMisc["RenameFilesMiscScan - TempMisc + DISTRICT + Rand5"]
+        RenameMisc --> MoveMisc["MoveFilesMiscScan - To IRMonitor MiscScans"]
+
+        Branch -->|"Other"| ExitNoOp(["Exit No-Op"])
+
+        MoveApps --> ExitOK(["Exit Code 0"])
+        MoveMisc --> ExitOK
+    end
+
+    ExitOK --> Ingest["ImageRight Ingestion Service"]
+    Ingest --> Finish(["Document Available in DMS"])
+
+    style PAD fill:#fafafa,stroke:#333,stroke-width:2px
+                        </pre>
+                        <div class="mermaid-draw"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DISTRICT COVERAGE MATRIX -->
+            <div class="section" id="sec-coverage">
+                <div class="section-header">
+                    <h2>5. District Coverage Matrix</h2>
+                </div>
+                <div class="card">
+                    <p style="margin-bottom:1rem; line-height:1.5; font-size:0.95rem; color:var(--text-secondary);">
+                        Tracks automated coverage across Georgia district networks. Six locations are fully automated. Albany features a single active flow (3 missing), and Brunswick, Athens, and Forest Park remain fully unautomated.
+                    </p>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>District ID</th>
+                                    <th>Location Name</th>
+                                    <th>Preferred Apps</th>
+                                    <th>Fire Apps</th>
+                                    <th>Standard Apps</th>
+                                    <th>Misc Scans</th>
+                                    <th>Folder on Server</th>
+                                    <th>Coverage Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>01</td>
+                                    <td>Unknown Location</td>
+                                    <td>❌ Missing</td>
+                                    <td>❌ Missing</td>
+                                    <td>❌ Missing</td>
+                                    <td>❌ Missing</td>
+                                    <td>No</td>
+                                    <td><span class="badge badge-danger">Not Deployed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>02</td>
+                                    <td>Augusta</td>
+                                    <td>✅ YES</td>
+                                    <td>✅ YES</td>
+                                    <td>✅ YES</td>
+                                    <td>✅ YES</td>
+                                    <td>Yes</td>
+                                    <td><span class="badge badge-success">Fully Automated</span></td>
+                                </tr>
+                                <tr>
+                                    <td>03</td>
+                                    <td>Dublin</td>
+                                    <td>✅ YES</td>
+                                    <td>✅ YES</td>
+                                    <td>✅ YES</td>
+                                    <td>✅ YES</td>
+                                    <td>Yes</td>
+                                    <td><span class="badge badge-success">Fully Automated</span></td>
+                                </tr>
+                                <tr>
+                                    <td>04</td>
+                                    <td>Albany</td>
+                                    <td>❌ Missing</td>
+                                    <td>❌ Missing</td>
+                                    <td>✅ YES</td>
+                                    <td>❌ Missing</td>
+                                    <td>Yes</td>
+                                    <td><span class="badge badge-warning">Partially Deployed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>05</td>
+                                    <td>Brunswick</td>
+                                    <td>❌ Missing</td>
+                                    <td>❌ Missing</td>
+                                    <td>❌ Missing</td>
+                                    <td>❌ Missing</td>
+                                    <td>Yes</td>
+                                    <td><span class="badge badge-danger">Not Deployed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>06</td>
+                                    <td>Thomasville</td>
+                                    <td>✅ YES</td>
+                                    <td>✅ YES</td>
+                                    <td>✅ YES <span style="cursor:help;" data-tooltip="Thomasville passes a 6-digit placeholders DOCDATE='000000' while others pass 8-digit placeholders.">⚠️</span></td>
+                                    <td>✅ YES</td>
+                                    <td>Yes</td>
+                                    <td><span class="badge badge-success">Fully Automated</span></td>
+                                </tr>
+                                <tr>
+                                    <td>07</td>
+                                    <td>Douglas</td>
+                                    <td>✅ YES</td>
+                                    <td>✅ YES</td>
+                                    <td>✅ YES</td>
+                                    <td>✅ YES</td>
+                                    <td>Yes</td>
+                                    <td><span class="badge badge-success">Fully Automated</span></td>
+                                </tr>
+                                <tr>
+                                    <td>08</td>
+                                    <td>Macon</td>
+                                    <td>✅ YES</td>
+                                    <td>✅ YES</td>
+                                    <td>✅ YES</td>
+                                    <td>✅ YES</td>
+                                    <td>Yes</td>
+                                    <td><span class="badge badge-success">Fully Automated</span></td>
+                                </tr>
+                                <tr>
+                                    <td>09</td>
+                                    <td>Savannah</td>
+                                    <td>✅ YES</td>
+                                    <td>✅ YES</td>
+                                    <td>✅ YES</td>
+                                    <td>✅ YES</td>
+                                    <td>Yes</td>
+                                    <td><span class="badge badge-success">Fully Automated</span></td>
+                                </tr>
+                                <tr>
+                                    <td>10</td>
+                                    <td>Athens</td>
+                                    <td>❌ Missing</td>
+                                    <td>❌ Missing</td>
+                                    <td>❌ Missing</td>
+                                    <td>❌ Missing</td>
+                                    <td>Yes</td>
+                                    <td><span class="badge badge-danger">Not Deployed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>11</td>
+                                    <td>Forest Park</td>
+                                    <td>❌ Missing</td>
+                                    <td>❌ Missing</td>
+                                    <td>❌ Missing</td>
+                                    <td>❌ Missing</td>
+                                    <td>Yes</td>
+                                    <td><span class="badge badge-danger">Not Deployed</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CLOUD FLOW INVENTORY -->
+            <div class="section" id="sec-cloud-flows">
+                <div class="section-header">
+                    <h2>6. Cloud Flow Inventory</h2>
+                    <div class="filter-controls">
+                        <span class="filter-label">Filter District:</span>
+                        <select class="search-input" style="width: auto; padding: 0.25rem 0.5rem;" id="filter-cf-district">
+                            <option value="">All Districts</option>
+                            <option value="02">District 02 (Augusta)</option>
+                            <option value="03">District 03 (Dublin)</option>
+                            <option value="04">District 04 (Albany)</option>
+                            <option value="06">District 06 (Thomasville)</option>
+                            <option value="07">District 07 (Douglas)</option>
+                            <option value="08">District 08 (Macon)</option>
+                            <option value="09">District 09 (Savannah)</option>
+                        </select>
+                        <span class="filter-label">Doc Type:</span>
+                        <select class="search-input" style="width: auto; padding: 0.25rem 0.5rem;" id="filter-cf-type">
+                            <option value="">All Types</option>
+                            <option value="AppPrfd">Preferred Application</option>
+                            <option value="AppFire">Fire Application</option>
+                            <option value="AppNPrfd">Non-Preferred Application</option>
+                            <option value="MiscScan">Miscellaneous Scan</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="cloud-flows-list">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+
+            <!-- DESKTOP FLOW INVENTORY -->
+            <div class="section" id="sec-desktop-flows">
+                <div class="section-header">
+                    <h2>7. Desktop Flow Inventory</h2>
+                    <div class="filter-controls">
+                        <span class="filter-label">Filter RAG Status:</span>
+                        <button class="btn btn-sm active" id="btn-df-all" onclick="filterDFRAG('')">All</button>
+                        <button class="btn btn-sm" id="btn-df-red" onclick="filterDFRAG('red')" style="border-left: 4px solid var(--danger);">Red</button>
+                        <button class="btn btn-sm" id="btn-df-amber" onclick="filterDFRAG('amber')" style="border-left: 4px solid var(--warning);">Amber</button>
+                        <button class="btn btn-sm" id="btn-df-green" onclick="filterDFRAG('green')" style="border-left: 4px solid var(--success);">Green</button>
+                    </div>
+                </div>
+                <div id="desktop-flows-list">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+
+            <!-- INTERACTIVE DEPENDENCY EXPLORER -->
+            <div class="section" id="sec-explorer">
+                <div class="section-header">
+                    <h2>8. Interactive Dependency Explorer</h2>
+                    <span class="badge badge-info">Lineage Tracker</span>
+                </div>
+                <div class="dep-graph-card">
+                    <div class="dep-graph-title-select">
+                        <p style="font-size:0.9rem; color:var(--text-secondary); max-width:60%;">
+                            Select any architectural component in the system to dynamically render its upstream (calling/triggering) and downstream (called/dependent) relationships. Click on any block to walk the architecture tree.
+                        </p>
+                        <div>
+                            <label for="dep-node-selector" style="font-size: 0.8rem; font-weight:700; text-transform:uppercase; margin-right:0.5rem; color:var(--text-secondary);">Select Component:</label>
+                            <select id="dep-node-selector" class="search-input" style="width: auto; display:inline-block; padding:0.4rem 0.75rem;" onchange="selectDepNode(this.value)">
+                                <!-- Injected dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="dep-node-wrapper">
+                        <!-- Upstream Row -->
+                        <div style="font-size:0.75rem; font-weight:700; color:var(--text-tertiary); text-transform:uppercase;">Incoming (Upstream Relations)</div>
+                        <div class="dep-node-row" id="dep-upstream-row">
+                            <!-- Injected -->
+                        </div>
+                        
+                        <!-- Connecting arrows -->
+                        <div class="dep-node-arrow-vertical"></div>
+                        
+                        <!-- Target Row -->
+                        <div style="font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;">Selected Component</div>
+                        <div class="dep-node-row">
+                            <div class="dep-node-box active-node" id="dep-active-node" onclick="openActiveNodeDetails()">
+                                <!-- Injected -->
+                            </div>
+                        </div>
+                        
+                        <!-- Connecting arrows -->
+                        <div class="dep-node-arrow-vertical"></div>
+                        
+                        <!-- Downstream Row -->
+                        <div style="font-size:0.75rem; font-weight:700; color:var(--text-tertiary); text-transform:uppercase;">Outgoing (Downstream Dependencies)</div>
+                        <div class="dep-node-row" id="dep-downstream-row">
+                            <!-- Injected -->
+                        </div>
+                        
+                        <!-- Node Description -->
+                        <div class="dep-node-desc" id="dep-node-desc">
+                            Select a node to view description and detailed mappings.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTEGRATION ARCHITECTURE (SEQUENCE DIAGRAM) -->
+            <div class="section" id="sec-integrations">
+                <div class="section-header">
+                    <h2>9. Integration Architecture & E2E Sequence</h2>
+                </div>
+                <div class="card">
+                    <p style="margin-bottom:1.5rem; line-height:1.6; font-size:0.95rem; color:var(--text-secondary);">
+                        The sequence diagram below charts the real-time operational flow. It documents the interfaces between scanned files, File System folder watcher trigger, On-Premises Data Gateway bridge, unattended desktop sessions, path renaming, and final staging directories.
+                    </p>
+                    <div class="mermaid-container">
+                        <pre class="mermaid-src" style="display:none;">
+sequenceDiagram
+    autonumber
+    participant Scanner as Document Scanner
+    participant Share as File Share Server
+    participant Gateway as Data Gateway
+    participant Cloud as Cloud Flow
+    participant PAD as PAD Desktop
+    participant Dest as IRMonitor Staging
+    participant IR as ImageRight DMS
+
+    Scanner->>Share: Scan PDF into District directory
+    Note over Cloud,Share: Polls every 1 minute
+    Cloud->>Gateway: Check folder via File System connector
+    Gateway->>Share: List files in source directory
+    Share-->>Gateway: File listing results
+    Gateway-->>Cloud: File list payload
+    Note over Cloud: Loop per file via SplitOn
+    Cloud->>Gateway: Trigger SA-RenameScannedApps
+    Gateway->>PAD: Execute PAD Runner with 9 params
+    Note over PAD: Check Windows Session
+    PAD->>PAD: SetVariables format date
+    alt APPS workflow
+        PAD->>PAD: Generate random 5-digit suffix
+        PAD->>PAD: Rename to semicolon format
+        PAD->>Share: Move to IRMonitor Apps
+    else MISCSCAN workflow
+        PAD->>PAD: Generate random 5-digit suffix
+        PAD->>PAD: Rename to semicolon format
+        PAD->>Share: Move to IRMonitor MiscScans
+    end
+    PAD-->>Gateway: Execution complete Exit Code 0
+    Gateway-->>Cloud: Execution response
+    Dest->>IR: ImageRight detects and imports file
+                        </pre>
+                        <div class="mermaid-draw"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DATA LINEAGE DIAGRAM -->
+            <div class="section" id="sec-lineage">
+                <div class="section-header">
+                    <h2>10. Data Lineage & Naming Transformation</h2>
+                </div>
+                <div class="card">
+                    <p style="margin-bottom:1.5rem; line-height:1.6; font-size:0.95rem; color:var(--text-secondary);">
+                        Traces the lineage of file path parameters, current system date variables, and naming transformations. It maps source scanners to target semicolon-separated values used for Applied Systems ImageRight ingestion.
+                    </p>
+                    <div class="mermaid-container">
+                        <pre class="mermaid-src" style="display:none;">
+graph TD
+    subgraph Source["Source Format"]
+        S_File["Scanned File Name - e.g. Scan_102030.pdf"]
+        S_Path["UNC Folder Structure"]
+    end
+
+    subgraph Flow["In-Flight Transformation"]
+        T_Date["System Date - MM-dd-yyyy"]
+        T_Rand["5-Digit Random Number - 11111 to 99999"]
+        T_Dist["District ID - From folder name"]
+        T_Meta["Metadata - APPTYPE PAGEDESC DOCDESC"]
+    end
+
+    subgraph Dest["Destination Staging"]
+        D_Name["Semicolon-Delimited Ingestion Name"]
+        D_Path["IRMonitor Paths - Apps and MiscScans"]
+    end
+
+    S_File -->|"Monitored and parsed"| T_Meta
+    S_Path -->|"Extracts"| T_Dist
+    T_Date -->|"Concatenated"| D_Name
+    T_Rand -->|"Concatenated"| D_Name
+    T_Dist -->|"Concatenated"| D_Name
+    T_Meta -->|"Concatenated"| D_Name
+    D_Name -->|"Physically moved to"| D_Path
+
+    style Source fill:#fff3e0,stroke:#e65100,color:#333
+    style Flow fill:#e3f2fd,stroke:#1565c0,color:#333
+    style Dest fill:#e8f5e9,stroke:#2e7d32,color:#333
+                        </pre>
+                        <div class="mermaid-draw"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECURITY AND GOVERNANCE -->
+            <div class="section" id="sec-security">
+                <div class="section-header">
+                    <h2>11. Security and Governance Model</h2>
+                </div>
+                <div class="card" style="border-left: 5px solid var(--danger);">
+                    <h3 style="margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem; color: var(--danger);">
+                        <svg viewBox="0 0 24 24" style="width:22px; height:22px; fill:currentColor;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                        Critical Security Findings (Governance Review)
+                    </h3>
+                    <p style="margin-bottom:1rem; line-height:1.6; font-size:0.95rem;">
+                        The security posture of the QLARP solution carries significant operational risk due to a lack of governance structures in the default Power Platform tenant:
+                    </p>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem;">
+                        <div>
+                            <h4 style="margin-bottom:0.5rem; font-size:0.95rem;">dweaver@delta-life.com service account</h4>
+                            <p style="font-size:0.85rem; line-height:1.5; color:var(--text-secondary);">
+                                Connection references (File System and UIFlow) are authenticated via David Weaver's personal Active Directory account. If this employee is offboarded, changes their domain password, or has their account locked, <strong>the entire automation estate will experience immediate downtime</strong>.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 style="margin-bottom:0.5rem; font-size:0.95rem;">Default Environment Risk</h4>
+                            <p style="font-size:0.85rem; line-height:1.5; color:var(--text-secondary);">
+                                Running flows in the DEFAULT tenant environment means any user with basic Power Apps capabilities can view, run, or alter production integrations. No Data Loss Prevention (DLP) policies are configured, creating data exfiltration risks.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 style="margin-bottom:0.5rem; font-size:0.95rem;">Audit & Regulatory Gaps</h4>
+                            <p style="font-size:0.85rem; line-height:1.5; color:var(--text-secondary);">
+                                The process deletes policy documents (e.g. claims) via <code>SA-QLA Claims Policy Files Delete</code> without creating logs, database entries, or email records. Under Georgia Department of Insurance regulations (7+ year retention), silent document deletion without audit records presents a critical regulatory compliance gap.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RISK HEAT MAP & REGISTER -->
+            <div class="section" id="sec-risks">
+                <div class="section-header">
+                    <h2>12. Technical Risk Heat Map & Register</h2>
+                    <div class="filter-controls">
+                        <button class="btn btn-sm btn-primary" onclick="resetRiskFilters()">Reset Filters</button>
+                        <select class="search-input" style="width: auto; padding: 0.25rem 0.5rem;" id="filter-risk-rating">
+                            <option value="">All Ratings</option>
+                            <option value="Critical">Critical</option>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                        <select class="search-input" style="width: auto; padding: 0.25rem 0.5rem;" id="filter-risk-cat">
+                            <option value="">All Categories</option>
+                            <option value="Reliability">Reliability</option>
+                            <option value="Compliance">Compliance</option>
+                            <option value="Governance">Governance</option>
+                            <option value="Security">Security</option>
+                            <option value="Coverage">Coverage</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3 style="margin-bottom: 0.5rem;">Interactive Risk Heat Map</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                        Click on any cell in the heat map to filter the Risk Register table below. Likelihood on the Y-Axis vs. Impact on the X-Axis.
+                    </p>
+                    <div class="risk-map-grid">
+                        <!-- Header Row -->
+                        <div class="risk-map-header">L \ I</div>
+                        <div class="risk-map-header">Low Impact</div>
+                        <div class="risk-map-header">Med Impact</div>
+                        <div class="risk-map-header">High Impact</div>
+                        
+                        <!-- High Likelihood Row -->
+                        <div class="risk-map-label">High Likelihood</div>
+                        <div class="risk-map-cell heat-low" id="cell-high-low" onclick="filterHeatmap('High', 'Low', 'cell-high-low')">
+                            <div class="risk-map-cell-title">Low</div>
+                            <div class="risk-map-cell-count">0</div>
+                        </div>
+                        <div class="risk-map-cell heat-high" id="cell-high-med" onclick="filterHeatmap('High', 'Medium', 'cell-high-med')">
+                            <div class="risk-map-cell-title">High</div>
+                            <div class="risk-map-cell-count">2</div>
+                            <div class="risk-map-cell-ids">R-005, R-009</div>
+                        </div>
+                        <div class="risk-map-cell heat-critical" id="cell-high-high" onclick="filterHeatmap('High', 'High', 'cell-high-high')">
+                            <div class="risk-map-cell-title">Critical</div>
+                            <div class="risk-map-cell-count">4</div>
+                            <div class="risk-map-cell-ids">R-001, R-002, R-004, R-007</div>
+                        </div>
+                        
+                        <!-- Medium Likelihood Row -->
+                        <div class="risk-map-label">Medium Likelihood</div>
+                        <div class="risk-map-cell heat-low" id="cell-med-low" onclick="filterHeatmap('Medium', 'Low', 'cell-med-low')">
+                            <div class="risk-map-cell-title">Low</div>
+                            <div class="risk-map-cell-count">0</div>
+                        </div>
+                        <div class="risk-map-cell heat-medium" id="cell-med-med" onclick="filterHeatmap('Medium', 'Medium', 'cell-med-med')">
+                            <div class="risk-map-cell-title">Medium</div>
+                            <div class="risk-map-cell-count">4</div>
+                            <div class="risk-map-cell-ids">R-006, R-011, R-014, R-015</div>
+                        </div>
+                        <div class="risk-map-cell heat-high" id="cell-med-high" onclick="filterHeatmap('Medium', 'High', 'cell-med-high')">
+                            <div class="risk-map-cell-title">High</div>
+                            <div class="risk-map-cell-count">3</div>
+                            <div class="risk-map-cell-ids">R-003, R-010, R-012</div>
+                        </div>
+                        
+                        <!-- Low Likelihood Row -->
+                        <div class="risk-map-label">Low Likelihood</div>
+                        <div class="risk-map-cell heat-low" id="cell-low-low" onclick="filterHeatmap('Low', 'Low', 'cell-low-low')">
+                            <div class="risk-map-cell-title">Low</div>
+                            <div class="risk-map-cell-count">0</div>
+                        </div>
+                        <div class="risk-map-cell heat-low" id="cell-low-med" onclick="filterHeatmap('Low', 'Medium', 'cell-low-med')">
+                            <div class="risk-map-cell-title">Low</div>
+                            <div class="risk-map-cell-count">1</div>
+                            <div class="risk-map-cell-ids">R-013</div>
+                        </div>
+                        <div class="risk-map-cell heat-medium" id="cell-low-high" onclick="filterHeatmap('Low', 'High', 'cell-low-high')">
+                            <div class="risk-map-cell-title">Medium</div>
+                            <div class="risk-map-cell-count">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="table-risks">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Risk Description</th>
+                                <th>Category</th>
+                                <th>Rating</th>
+                                <th>Mitigation Strategy</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ERROR HANDLING COMPARISON -->
+            <div class="section" id="sec-gaps">
+                <div class="section-header">
+                    <h2>13. Error Handling Comparisons & Alerting Flows</h2>
+                </div>
+                <div class="card">
+                    <p style="margin-bottom:1.5rem; line-height:1.6; font-size:0.95rem; color:var(--text-secondary);">
+                        A standardized error recovery design is missing from the unmanaged Power Platform export. The workflow diagram below contrasts the current vulnerable silent-failure structure with our proposed, production-ready, resilient catch-and-notify scope architecture.
+                    </p>
+                    <div class="mermaid-container">
+                        <pre class="mermaid-src" style="display:none;">
+graph TD
+    subgraph Current["Current Flow - No Error Handling"]
+        Start1(["File Processing Start"]) --> Action1["Execute File Move or Rename"]
+        Action1 -->|"Failure - Locked file or Network drop"| Stop1["Flow terminates silently"]
+        Stop1 --> Return0["Returns Exit Code 0 - Success"]
+        Return0 --> CloudSuccess["Cloud Flow logs success - No alert triggered - Files lost in queue"]
+    end
+
+    subgraph Proposed["Proposed Resilient Flow"]
+        Start2(["File Processing Start"]) --> TryScope["Try Scope Block"]
+        TryScope --> Action2["Execute File Move or Rename"]
+        Action2 -->|"Success"| LogSuccess["Log processed file to SharePoint - Outcome: Success"]
+        Action2 -->|"Failure"| CatchBlock["Catch On Error Block"]
+        CatchBlock --> LogFailure["Log error details to SharePoint - Outcome: Error"]
+        LogFailure --> Alert["Send Teams Alert and Email - Include file name and error message"]
+        Alert --> ExitFail["Exit with Code 1 - Failure"]
+        ExitFail --> CloudFail["Cloud Flow fails run history - Monitoring alarm triggered"]
+    end
+
+    style Current fill:#fff0f0,stroke:#cc0000,color:#333
+    style Proposed fill:#f0fff0,stroke:#00aa44,color:#333
+                        </pre>
+                        <div class="mermaid-draw"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROADMAP -->
+            <div class="section" id="sec-roadmap">
+                <div class="section-header">
+                    <h2>14. Future Roadmap & Enhancements</h2>
+                </div>
+                <div class="card">
+                    <div style="display:flex; flex-direction:column; gap:1.5rem;">
+                        <div style="border-left:4px solid var(--accent); padding-left:1.5rem;">
+                            <h3 style="margin-bottom:0.5rem; color:var(--accent);">Phase 1: Critical Stabilization & Alerting (Immediate)</h3>
+                            <p style="line-height:1.6; font-size:0.9rem; color:var(--text-secondary);">
+                                Wrap file loops inside <code>SA-RenameScannedApps</code> with Try-Catch logic. Set non-zero exit codes on file conflicts or lock failures, and build "Configure Run-After Failure" scopes in cloud flow templates to trigger automated Microsoft Teams card notifications. Convert `DoNothing` actions to sequential indexing.
+                            </p>
+                        </div>
+                        <div style="border-left:4px solid var(--warning); padding-left:1.5rem;">
+                            <h3 style="margin-bottom:0.5rem; color:var(--warning);">Phase 2: Governance Cleanup & Service Account Migration</h3>
+                            <p style="line-height:1.6; font-size:0.9rem; color:var(--text-secondary);">
+                                Provision a dedicated non-interactive service account domain logon (e.g., <code>svc-rpa-dli@delta-life.com</code>) to replace David Weaver's personal account references. Clean the production tenant default space by deactivating and purging the 36 test, backup, and copy flows. Clone and configure missing Albany district flows.
+                            </p>
+                        </div>
+                        <div style="border-left:4px solid var(--success); padding-left:1.5rem;">
+                            <h3 style="margin-bottom:0.5rem; color:var(--success);">Phase 3: Central Configuration & Unattended Mode Setup</h3>
+                            <p style="line-height:1.6; font-size:0.9rem; color:var(--text-secondary);">
+                                Shift host server execution from Attended to Premium Unattended session pools, eliminating active user login constraints. Build a centralized SharePoint registry to log file metadata (e.g., source file name, transformed file name, district, time, and ingestion outcome) for a full regulatory audit trail.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- DETAIL PANEL DRAWERS -->
+    <div class="detail-panel-overlay" id="detail-overlay" onclick="closeDetailPanel()"></div>
+    <div class="detail-panel" id="detail-panel">
+        <div class="detail-panel-header">
+            <div class="detail-panel-title" id="panel-title">Component Details</div>
+            <button class="detail-panel-close" onclick="closeDetailPanel()" title="Close details">
+                <svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:currentColor;"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </button>
+        </div>
+        <div class="detail-panel-body" id="panel-body">
+            <!-- Loaded dynamically -->
+        </div>
+    </div>
+
+    <!-- HOVER TOOLTIP DIV -->
+    <div id="dynamic-tooltip"></div>
+
+    <!-- DATA ARRAYS AND VANILLA JAVASCRIPT CONTROLS -->
+    <script>
+        // Global App State
+        let selectedHeatmapCell = { likelihood: "", impact: "", elementId: "" };
+
+        // Cloud Flows Inventory Data
+        const cloudFlows = [
+            { id: "cf-01", name: "02-Agusta_RenameAppsPrefered", district: "02", city: "Augusta", docType: "AppPrfd", appType: "PREFERRED_APP", workflow: "APPS", source: "\\\\dli-atl-dcfp01\\ImageRight\\02_Augusta\\AppPrfd", dest: "IRMonitor\\Apps", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-02", name: "02-Augusta_RenameFireApp", district: "02", city: "Augusta", docType: "AppFire", appType: "FIRE_APP", workflow: "APPS", source: "\\\\dli-atl-dcfp01\\ImageRight\\02_Augusta\\AppFire", dest: "IRMonitor\\Apps", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-03", name: "02-Augusta_RenameNonAppsPrefered", district: "02", city: "Augusta", docType: "AppNPrfd", appType: "APPLICATION", workflow: "APPS", source: "\\\\dli-atl-dcfp01\\ImageRight\\02_Augusta\\AppNPrfd", dest: "IRMonitor\\Apps", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-04", name: "02-Augusta_RenameMiscScan", district: "02", city: "Augusta", docType: "MiscScan", appType: "MISCELLANEOUS", workflow: "MISCSCAN", source: "\\\\dli-atl-dcfp01\\ImageRight\\02_Augusta\\MiscScan", dest: "IRMonitor\\MiscScans", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-05", name: "03-Dublin_RenameAppsPrefered", district: "03", city: "Dublin", docType: "AppPrfd", appType: "PREFERRED_APP", workflow: "APPS", source: "\\\\dli-atl-dcfp01\\ImageRight\\03_Dublin\\AppPrfd", dest: "IRMonitor\\Apps", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-06", name: "03-Dublin_RenameFireApp", district: "03", city: "Dublin", docType: "AppFire", appType: "FIRE_APP", workflow: "APPS", source: "\\\\dli-atl-dcfp01\\ImageRight\\03_Dublin\\AppFire", dest: "IRMonitor\\Apps", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-07", name: "03-Dublin_RenameNonAppsPrefered", district: "03", city: "Dublin", docType: "AppNPrfd", appType: "APPLICATION", workflow: "APPS", source: "\\\\dli-atl-dcfp01\\ImageRight\\03_Dublin\\AppNPrfd", dest: "IRMonitor\\Apps", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-08", name: "03-Dublin_RenameMiscScan", district: "03", city: "Dublin", docType: "MiscScan", appType: "MISCELLANEOUS", workflow: "MISCSCAN", source: "\\\\dli-atl-dcfp01\\ImageRight\\03_Dublin\\MiscScan", dest: "IRMonitor\\MiscScans", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-09", name: "04-Albany_RenameNonAppsPrefered", district: "04", city: "Albany", docType: "AppNPrfd", appType: "APPLICATION", workflow: "APPS", source: "\\\\dli-atl-dcfp01\\ImageRight\\04_Albany\\AppNPrfd", dest: "IRMonitor\\Apps", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-10", name: "06-Thomasville_RenameAppsPrefered", district: "06", city: "Thomasville", docType: "AppPrfd", appType: "PREFERRED_APP", workflow: "APPS", source: "\\\\dli-atl-dcfp01\\ImageRight\\06_Thomasville\\AppPrfd", dest: "IRMonitor\\Apps", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-11", name: "06-Thomasville_RenameFireApp", district: "06", city: "Thomasville", docType: "AppFire", appType: "FIRE_APP", workflow: "APPS", source: "\\\\dli-atl-dcfp01\\ImageRight\\06_Thomasville\\AppFire", dest: "IRMonitor\\Apps", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-12", name: "06-Thomasville_RenameNonAppsPrefered", district: "06", city: "Thomasville", docType: "AppNPrfd", appType: "APPLICATION", workflow: "APPS", source: "\\\\dli-atl-dcfp01\\ImageRight\\06_Thomasville\\AppNPrfd", dest: "IRMonitor\\Apps", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-13", name: "06-Thomasville_RenameMiscScan", district: "06", city: "Thomasville", docType: "MiscScan", appType: "MISCELLANEOUS", workflow: "MISCSCAN", source: "\\\\dli-atl-dcfp01\\ImageRight\\06_Thomasville\\MiscScan", dest: "IRMonitor\\MiscScans", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-14", name: "07-Douglas_RenameAppsPrefered", district: "07", city: "Douglas", docType: "AppPrfd", appType: "PREFERRED_APP", workflow: "APPS", source: "\\\\dli-atl-dcfp01\\ImageRight\\07_Douglas\\AppPrfd", dest: "IRMonitor\\Apps", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-15", name: "07-Douglas_RenameFireApp", district: "07", city: "Douglas", docType: "AppFire", appType: "FIRE_APP", workflow: "APPS", source: "\\\\dli-atl-dcfp01\\ImageRight\\07_Douglas\\AppFire", dest: "IRMonitor\\Apps", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-16", name: "07-Douglas_RenameNonAppsPrefered", district: "07", city: "Douglas", docType: "AppNPrfd", appType: "APPLICATION", workflow: "APPS", source: "\\\\dli-atl-dcfp01\\ImageRight\\07_Douglas\\AppNPrfd", dest: "IRMonitor\\Apps", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-17", name: "07-Douglas_RenameMiscScan", district: "07", city: "Douglas", docType: "MiscScan", appType: "MISCELLANEOUS", workflow: "MISCSCAN", source: "\\\\dli-atl-dcfp01\\ImageRight\\07_Douglas\\MiscScan", dest: "IRMonitor\\MiscScans", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-18", name: "08-Macon_RenameAppsPrefered", district: "08", city: "Macon", docType: "AppPrfd", appType: "PREFERRED_APP", workflow: "APPS", source: "\\\\dli-atl-dcfp01\\ImageRight\\08_Macon\\AppPrfd", dest: "IRMonitor\\Apps", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-19", name: "08-Macon_RenameFireApp", district: "08", city: "Macon", docType: "AppFire", appType: "FIRE_APP", workflow: "APPS", source: "\\\\dli-atl-dcfp01\\ImageRight\\08_Macon\\AppFire", dest: "IRMonitor\\Apps", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-20", name: "08-Macon_RenameNonAppsPrefered", district: "08", city: "Macon", docType: "AppNPrfd", appType: "APPLICATION", workflow: "APPS", source: "\\\\dli-atl-dcfp01\\ImageRight\\08_Macon\\AppNPrfd", dest: "IRMonitor\\Apps", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-21", name: "08-Macon_RenameMiscScan", district: "08", city: "Macon", docType: "MiscScan", appType: "MISCELLANEOUS", workflow: "MISCSCAN", source: "\\\\dli-atl-dcfp01\\ImageRight\\08_Macon\\MiscScan", dest: "IRMonitor\\MiscScans", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-22", name: "09-Savannah_RenameAppsPrefered", district: "09", city: "Savannah", docType: "AppPrfd", appType: "PREFERRED_APP", workflow: "APPS", source: "\\\\dli-atl-dcfp01\\ImageRight\\09_Savannah\\AppPrfd", dest: "IRMonitor\\Apps", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-23", name: "09-Savannah_RenameFireApp", district: "09", city: "Savannah", docType: "AppFire", appType: "FIRE_APP", workflow: "APPS", source: "\\\\dli-atl-dcfp01\\ImageRight\\09_Savannah\\AppFire", dest: "IRMonitor\\Apps", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-24", name: "09-Savannah_RenameNonAppsPrefered", district: "09", city: "Savannah", docType: "AppNPrfd", appType: "APPLICATION", workflow: "APPS", source: "\\\\dli-atl-dcfp01\\ImageRight\\09_Savannah\\AppNPrfd", dest: "IRMonitor\\Apps", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" },
+            { id: "cf-25", name: "09-Savannah_RenameMiscScan", district: "09", city: "Savannah", docType: "MiscScan", appType: "MISCELLANEOUS", workflow: "MISCSCAN", source: "\\\\dli-atl-dcfp01\\ImageRight\\09_Savannah\\MiscScan", dest: "IRMonitor\\MiscScans", trigger: "File System - When a file is created (1-min polling recurrence)", desktopFlowsCalled: "SA-RenameScannedApps", errorHandling: "None (silent failure)", rag: "red" }
+        ];
+
+        // Desktop Flows Inventory Data
+        const desktopFlows = [
+            { id: "df-01", name: "SA-RenameScannedApps", purpose: "Core document rename and route engine that handles apps and miscscans. Formats the live processing date, constructs the semicolon-separated metadata filename, and moves the files to staging.", inputs: "9 inputs: FILEPATH, IR_FILEPATH, DISTRICT, APPTYPE, DOCDATE, PREFILENUMBER, PAGEDESC, DOCDESC, QLA_Workflow", outputs: "Exits code 0 on complete", apps: "None (Filesystem operations only)", files: "\\\\dli-atl-dcfp01\\ImageRight, C:\\ImageRight\\Disticts..txt (dead code)", error: "None. No error handling, try-catch, or alert blocks. Skips file conflicts silently.", rag: "red" },
+            { id: "df-02", name: "SA-RenameCancerApps", purpose: "Renames and routes cancer insurance application documents to the ImageRight DMS queue. Follows a similar logic to SA-RenameScannedApps.", inputs: "Inferred: same parameters as SA-RenameScannedApps", outputs: "Exits code 0", apps: "None", files: "District cancer application UNC shares", error: "None. Critically, exists twice as two active duplicate flows in the environment.", rag: "red" },
+            { id: "df-03", name: "SA-QLAPolicyPrint", purpose: "Automates policy document print requests from the QLAdmin administration system and routes print jobs to local district network printers.", inputs: "PolicyNumber, District", outputs: "Physical print job spool", apps: "QLAdmin, Adobe Acrobat, Spooler", files: "\\\\dli-atl-app05\\QLAdmin\\", error: "None. Fails silently if printer is offline or screen state deviates.", rag: "amber" },
+            { id: "df-04", name: "SA-QLA_PRBPrint", purpose: "Prints Premium Receipt Book (PRB) documents from the QLAdmin policy administration system.", inputs: "PolicyNumber, District", outputs: "Spool print job", apps: "QLAdmin, Adobe Acrobat, Printer Spooler", files: "\\\\dli-atl-app05\\QLAdmin\\", error: "None.", rag: "amber" },
+            { id: "df-05", name: "QLAScreenScrape", purpose: "Legacy UI screen scraper that navigates QLAdmin policy screens and extracts data elements when programmatic API access is unavailable.", inputs: "PolicyNumber, TargetFields", outputs: "Extracted data structure", apps: "QLAdmin Desktop Application", files: "controlRepo.appmask, imageRepo.imgrepo (Embedded UI repository binaries)", error: "None. Extremely fragile to resolution, OS scaling, theme, and version updates.", rag: "amber" },
+            { id: "df-06", name: "PolicyNoScreenScrape", purpose: "Alternative policy processing script accessing QLAdmin UI screens.", inputs: "PolicyNumber", outputs: "Processed file details", apps: "QLAdmin", files: "controlRepo.appmask, imageRepo.imgrepo", error: "None.", rag: "amber" },
+            { id: "df-07", name: "PUOverloan", purpose: "Splits bulk overloan PDF letters into 2-page documents, extracts policy numbers via OCR, renames files, and routes to ImageRight.", inputs: "None", outputs: "Splits and renames PDFs", apps: "Adobe Acrobat Reader/Pro", files: "E:\\OverloanLetters (Local hardcoded machine path)", error: "None.", rag: "amber" },
+            { id: "df-08", name: "CommReport", purpose: "Generates the monthly agency commission report from QLAdmin and writes reports to the shared network path.", inputs: "DateRange", outputs: "Agency report file", apps: "QLAdmin", files: "\\\\delta-life\\agencyrpts\\CommissionReport\\Misc", error: "None.", rag: "amber" },
+            { id: "df-09", name: "SA-ClaimChecklEnvelope", purpose: "Compiles claims documents and packages required checklists into ImageRight claims envelopes.", inputs: "ClaimNumber, PolicyNumber, District", outputs: "Assembled envelope structure", apps: "ImageRight, QLAdmin", files: "Claims directories on \\\\dli-atl-dcfp01", error: "None.", rag: "amber" },
+            { id: "df-10", name: "SA-QLA Claims Policy Files Delete", purpose: "Cleanup workflow that permanently deletes raw claims files from staging folders after successful ImageRight ingestion.", inputs: "TargetFolder", outputs: "Permanent file deletions", apps: "FileSystem", files: "Staging directories", error: "None. Destructive file operations with zero backup or verification logging.", rag: "amber" },
+            { id: "df-11", name: "Start_ImageRight_QLAdmin", purpose: "Recovery tool that spawns process tasks to launch the ImageRight client and QLAdmin application on the execution server.", inputs: "None", outputs: "Processes launched", apps: "QLAdmin, ImageRight Client", files: "Local executable application paths", error: "None.", rag: "amber" },
+            { id: "df-12", name: "GetBranchInfo", purpose: "Reads branch metadata configuration details from a text file on the secondary iSeries file share.", inputs: "None", outputs: "Branch list array", apps: "FileSystem", files: "\\\\dli-atl-rdh01\\BranchList\\", error: "None.", rag: "amber" },
+            { id: "df-13", name: "GetNext MondayDate", purpose: "Calculates and returns the calendar date of the next Monday for scheduler flows.", inputs: "None", outputs: "Formatted date string", apps: "None", files: "None", error: "None (Calculates using safe date logic).", rag: "green" },
+            { id: "df-14", name: "Date Conversion", purpose: "Translates date strings between different formats used in policy outputs.", inputs: "InputDate, FormatString", outputs: "Formatted date string", apps: "None", files: "None", error: "None.", rag: "green" }
+        ];
+
+        // Risks Registry Data
+        const risks = [
+            { id: "R-001", description: "No error handling in any desktop flow — all failures are silent. When SA-RenameScannedApps or any other PAD desktop flow encounters an error (locked file, missing folder, network timeout, application crash), the flow terminates without generating any notification.", category: "Reliability", likelihood: "High", impact: "High", rating: "Critical", mitigation: "Add ON ERROR blocks to SA-RenameScannedApps and all production desktop flows. Configure each error handler to send a Teams or email notification containing the flow name, input file path, error message, and timestamp.", status: "Open" },
+            { id: "R-002", description: "No error handling in cloud flows — the failure branch is not configured on any of the 25 cloud trigger flows. Power Automate cloud flows support a 'Configure run after — has failed' branch, but this has not been set up. If a cloud flow fails to call the desktop flow (gateway offline, machine unavailable, throttling), no notification is issued.", category: "Reliability", likelihood: "High", impact: "High", rating: "Critical", mitigation: "Add a 'Configure run after (has failed)' branch to each cloud flow. The failure branch should send an email or Teams notification containing the flow name, the source file path, and the error message.", status: "Open" },
+            { id: "R-003", description: "File.IfExists.DoNothing — silent document loss — when SA-RenameScannedApps attempts to move a renamed file to the IRMonitor staging folder and a file with the same name already exists at the destination, the PAD File.Move action is configured with IfExists = DoNothing. The source file is silently skipped: it is not moved, not logged, not alerted.", category: "Reliability", likelihood: "Medium", impact: "High", rating: "High", mitigation: "Change the IfExists setting to AddSequentialSuffix so collisions are resolved automatically rather than dropped. Additionally, add a logging step to record any collision event to a SharePoint list.", status: "Open" },
+            { id: "R-004", description: "Attended run mode — session dependency creates single point of failure — all PAD desktop flows are configured in attended mode, which requires an active, unlocked Windows user session on the PAD machine. Any event that terminates or locks the session stops all document processing immediately.", category: "Reliability", likelihood: "High", impact: "High", rating: "Critical", mitigation: "Evaluate the Power Automate unattended add-on licence for the PAD machine; unattended mode removes the session dependency. Interim: prevent server sleep, screen lock, or automatic OS updates during active scanning hours.", status: "Open" },
+            { id: "R-005", description: "Albany (District 04) coverage gap — three document types unautomated — cloud flows for AppPrfd, AppFire, and MiscScan do not exist for District 04 Albany. Only AppNPrfd is covered. If Albany staff are scanning preferred applications, fire applications, or miscellaneous documents, those files are accumulating in the source folder.", category: "Coverage", likelihood: "High", impact: "Medium", rating: "High", mitigation: "Build the three missing cloud flows for Albany (04-AppPrfd, 04-AppFire, 04-MiscScan) following the established pattern from Augusta and Dublin.", status: "Open" },
+            { id: "R-006", description: "Districts 05, 10, 11 — server folders exist, no flows built — source folders exist on the primary ImageRight server for Brunswick (05), Athens (10), and Forest Park (11), but no automation flows have been built for any of these districts. It is unknown whether staff at these locations are currently placing scanned documents into those folders.", category: "Coverage", likelihood: "Medium", impact: "Medium", rating: "Medium", mitigation: "Confirm with Rob whether Districts 05, 10, and 11 are active and currently sending scanned documents. If active, build flows following the standard pattern. If decommissioned, archive the server folders.", status: "Open" },
+            { id: "R-007", description: "Single on-premises gateway — all automation flows fail together — both the File System connector and the Desktop Flows connector route through a single on-premises data gateway. If that gateway service stops, all 25 cloud flows immediately lose the ability to reach the file system and the PAD machine.", category: "Reliability", likelihood: "High", impact: "High", rating: "Critical", mitigation: "Configure gateway health monitoring using Power Platform Admin Center or Azure Monitor. Establish a secondary gateway cluster instance for automatic failover. Add the gateway host machine to the IT maintenance schedule.", status: "Open" },
+            { id: "R-008", description: "No audit trail or run logging anywhere in the solution — the current solution contains no logging of any kind. There is no record of which files were processed, when processing occurred, whether a run succeeded or failed, what the input filename was, or what the output filename was.", category: "Compliance", likelihood: "High", impact: "Medium", rating: "High", mitigation: "Add a SharePoint list as a lightweight processing log. Each cloud flow run should append a record containing: flow name, district, document type, timestamp, input file name, output file name, and outcome.", status: "Open" },
+            { id: "R-009", description: "36 dev/test artifact flows active in the DEFAULT production environment — the production DEFAULT environment contains 36 flows that are clearly development or test artefacts: flows named zUntitled, test, Test, Copy, Backup, personal names.", category: "Governance", likelihood: "High", impact: "Medium", rating: "High", mitigation: "Produce a full inventory of all 36 artefacts. For each: confirm with the original developer whether it is safe to deactivate, then deactivate and mark for deletion. After 2 weeks, permanently delete.", status: "Open" },
+            { id: "R-010", description: "SA-RenameCancerApps duplicate — two active flows with the same name — there are two simultaneously active flows both named SA-RenameCancerApps in the solution. If both are polling the same source folder, both may trigger on the same document, potentially processing the same document twice.", category: "Reliability", likelihood: "Medium", impact: "High", rating: "High", mitigation: "Compare last-modified timestamp and run history. Identify the production instance. Immediately deactivate and remove the older or duplicate copy. Confirm with Tarandeep before deletion.", status: "Open" },
+            { id: "R-011", description: "Unmanaged solution in DEFAULT environment — no change control or deployment gate — the solution is deployed as an unmanaged solution in the DEFAULT Power Platform environment. Unmanaged solutions allow any licensed developer to directly edit, deactivate, or delete production flows.", category: "Governance", likelihood: "Medium", impact: "Medium", rating: "Medium", mitigation: "Create a managed solution package. Provision a dedicated DLI-Automation environment (separate from DEFAULT) and deploy the managed solution there. Use DEFAULT environment as the development workspace.", status: "Open" },
+            { id: "R-012", description: "dweaver@delta-life.com personal account used as service account — the connection references for the on-premises file system connector and the Active Directory LDAP authentication are tied to a personal employee email address: dweaver@delta-life.com.", category: "Security", likelihood: "Medium", impact: "High", rating: "High", mitigation: "Replace all connection references with a dedicated shared service account (e.g. svc-automation@delta-life.com). Ensure the service account has minimum permissions (UNC share read/write, no interactive login rights).", status: "Open" },
+            { id: "R-013", description: "Thomasville (District 06) DOCDATE field inconsistency — the cloud flow 06-Thomasville_RenameNonAppsPrefered passes the DOCDATE parameter as '000000' (6 digits) to SA-RenameScannedApps. Every other district flow passes '00000000' (8 digits).", category: "Reliability", likelihood: "Low", impact: "Medium", rating: "Low", mitigation: "Confirm with Rob or the ImageRight administrator whether DOCDATE is validated on ingestion. If not, correct the Thomasville parameter to '00000000' for naming consistency.", status: "Open" },
+            { id: "R-014", description: "QLAPolicyPrint is a 205-byte empty stub showing as active — the flow named QLAPolicyPrint has a StateCode of 1 (Active) but its full JSON definition is only 205 bytes — effectively an empty placeholder with no steps.", category: "Governance", likelihood: "Medium", impact: "Medium", rating: "Medium", mitigation: "Remove the empty QLAPolicyPrint stub from the solution immediately. Ensure SA-QLAPolicyPrint is clearly named, documented, and recognisable as the production policy printing flow.", status: "Open" },
+            { id: "R-015", description: "Multiple ManagersReport versions — production flow ambiguous — four versions of the Manager's Report flow exist in the solution: SA-QLA ManagersReport, QLA Managers Report, SA-QLA ManagersReport - Copy, SA-QLA ManagersReport - Copy(1), and QLA ManagersReport - Backup.", category: "Governance", likelihood: "Medium", impact: "Medium", rating: "Medium", mitigation: "Confirm with Tarandeep which flow version is the current production Manager's Report. Inspect run history. Deactivate and remove all non-production copies.", status: "Open" }
+        ];
+
+        // Dependency Graph Explorer Nodes Mappings
+        const depNodes = {
+            "df-rename-scanned-apps": { name: "SA-RenameScannedApps (Desktop Flow)", type: "Desktop Flow", desc: "Core document renaming and moving PAD flow triggered in attended mode. Moves scans from District folders to IRMonitor.", upstream: ["sys-gateway", "cf-01", "cf-02", "cf-03", "cf-04", "cf-05", "cf-06", "cf-07", "cf-08", "cf-09", "cf-10", "cf-11", "cf-12", "cf-13", "cf-14", "cf-15", "cf-16", "cf-17", "cf-18", "cf-19", "cf-20", "cf-21", "cf-22", "cf-23", "cf-24", "cf-25"], downstream: ["sys-fileserver-dcfp01", "sys-imageright"] },
+            "sys-gateway": { name: "On-Premises Data Gateway", type: "Infrastructure", desc: "Dual connections bridge routing File System triggers and UI Flow desktop execution targets.", upstream: ["user-dweaver"], downstream: ["df-rename-scanned-apps", "df-rename-cancer-apps", "df-policy-print", "df-prb-print", "df-screen-scrape", "df-overloan", "df-managers-report", "df-commission-report", "df-claim-envelope", "df-claims-delete"] },
+            "sys-fileserver-dcfp01": { name: "File Server (dli-atl-dcfp01)", type: "Infrastructure", desc: "UNC Share containing District source watch directories and IRMonitor Apps/MiscScan staging queues.", upstream: ["sys-gateway", "df-rename-scanned-apps", "df-rename-cancer-apps", "df-claim-envelope", "df-claims-delete"], downstream: ["sys-imageright"] },
+            "sys-imageright": { name: "ImageRight DMS", type: "External System", desc: "Applied Systems Document Management System that automatically sweeps and ingests indexed TIFF/PDF scans.", upstream: ["sys-fileserver-dcfp01"], downstream: [] },
+            "sys-qladmin": { name: "QLAdmin System (dli-atl-app05)", type: "External System", desc: "Legacy Policy Administration client-server database accessed via prints and screen scraper scripts.", upstream: ["df-policy-print", "df-prb-print", "df-screen-scrape", "df-managers-report", "df-commission-report", "df-claim-envelope"], downstream: [] },
+            "user-dweaver": { name: "dweaver@delta-life.com AD Account", type: "Access Credentials", desc: "Personal domain Active Directory logon account used to authorize both connection references on the gateway.", upstream: [], downstream: ["sys-gateway"] },
+            "sys-fileserver-rdh01": { name: "iSeries Share (dli-atl-rdh01)", type: "Infrastructure", desc: "Hosts Branch List reference data text files polled by the helper utility GetBranchInfo.", upstream: ["df-branch-info"], downstream: [] },
+            "sys-agency-share": { name: "Agency Share (delta-life)", type: "UNC File Share", desc: "Commission report outputs path: \\\\delta-life\\agencyrpts\\CommissionReport\\Misc", upstream: ["df-commission-report"], downstream: [] },
+            
+            // Sub Desktop Flows
+            "df-rename-cancer-apps": { name: "SA-RenameCancerApps (Desktop Flow)", type: "Desktop Flow", desc: "PAD flow renaming and moving Cancer policy scans. Contains dual active copies in flow directory.", upstream: ["sys-gateway"], downstream: ["sys-fileserver-dcfp01", "sys-imageright"] },
+            "df-policy-print": { name: "SA-QLAPolicyPrint (Desktop Flow)", type: "Desktop Flow", desc: "Queries QLAdmin policy numbers and outputs spooled PDF prints to district hardware.", upstream: ["sys-gateway"], downstream: ["sys-qladmin", "prn-lexmark"] },
+            "df-prb-print": { name: "SA-QLA_PRBPrint (Desktop Flow)", type: "Desktop Flow", desc: "Spools Premium Receipt Book document print targets to local Lexmark district printers.", upstream: ["sys-gateway"], downstream: ["sys-qladmin", "prn-lexmark"] },
+            "df-screen-scrape": { name: "QLAScreenScrape (Desktop Flow)", type: "Desktop Flow", desc: "Pulls policy metadata directly from QLAdmin UI controls. Fragile, relies on screen coords.", upstream: ["sys-gateway"], downstream: ["sys-qladmin"] },
+            "df-overloan": { name: "PUOverloan (Desktop Flow)", type: "Desktop Flow", desc: "OCR parses and splits overloan letters. Hardcoded path E:\\OverloanLetters. Currently inactive.", upstream: ["sys-gateway"], downstream: ["sys-imageright"] },
+            "df-managers-report": { name: "SA-QLA ManagersReport (Desktop Flow)", type: "Desktop Flow", desc: "Compiles managers report stats. Redundant copies exist in system folder.", upstream: ["sys-gateway"], downstream: ["sys-qladmin"] },
+            "df-commission-report": { name: "CommReport (Desktop Flow)", type: "Desktop Flow", desc: "Generates commissions output to network share. Superseded copies found in unmanaged space.", upstream: ["sys-gateway"], downstream: ["sys-qladmin", "sys-agency-share"] },
+            "df-claim-envelope": { name: "SA-ClaimChecklEnvelope (Desktop Flow)", type: "Desktop Flow", desc: "Packages Claim checklist items into ImageRight envelope directories.", upstream: ["sys-gateway"], downstream: ["sys-qladmin", "sys-fileserver-dcfp01"] },
+            "df-claims-delete": { name: "SA-QLA Claims Policy Files Delete (Desktop Flow)", type: "Desktop Flow", desc: "Post-ingestion cleaner deleting temporary claim files. No logs generated.", upstream: ["sys-gateway"], downstream: ["sys-fileserver-dcfp01"] },
+            "df-branch-info": { name: "GetBranchInfo (Desktop Flow)", type: "Desktop Flow", desc: "Retrieves active branch names and data indices from secondary file servers.", upstream: ["sys-gateway"], downstream: ["sys-fileserver-rdh01"] },
+            "prn-lexmark": { name: "Lexmark Spoolers (MS810/MS821)", type: "Hardware Spooler", desc: "Physical output printers. Augusta uses MS821; all other branches use MS810 series.", upstream: ["df-policy-print", "df-prb-print"], downstream: [] }
+        };
+
+        // Render Cloud Flows cards
+        function renderCloudFlows() {
+            const list = document.getElementById("cloud-flows-list");
+            list.innerHTML = "";
+            
+            const selectedDistrict = document.getElementById("filter-cf-district").value;
+            const selectedType = document.getElementById("filter-cf-type").value;
+            const searchQuery = document.getElementById("global-search").value.toLowerCase();
+            
+            let filtered = cloudFlows.filter(flow => {
+                if (selectedDistrict && flow.district !== selectedDistrict) return false;
+                if (selectedType && flow.docType !== selectedType) return false;
+                
+                if (searchQuery) {
+                    return flow.name.toLowerCase().includes(searchQuery) ||
+                           flow.city.toLowerCase().includes(searchQuery) ||
+                           flow.source.toLowerCase().includes(searchQuery) ||
+                           flow.appType.toLowerCase().includes(searchQuery);
+                }
+                return true;
+            });
+            
+            if (filtered.length === 0) {
+                list.innerHTML = `<div class="card" style="text-align:center; color:var(--text-tertiary);">No Cloud Flows matched your search parameters.</div>`;
+                return;
+            }
+            
+            filtered.forEach(flow => {
+                const card = document.createElement("div");
+                card.className = "collapsible-card";
+                card.id = `card-${flow.id}`;
+                
+                card.innerHTML = `
+                    <div class="collapsible-header" onclick="toggleCard('card-${flow.id}')" data-tooltip="Click to toggle details for this Cloud Flow.">
+                        <div class="collapsible-title-block">
+                            <span class="rag-indicator rag-${flow.rag}"></span>
+                            <span class="collapsible-title">${flow.name}</span>
+                            <span class="badge badge-info">${flow.city} (Dist ${flow.district})</span>
+                            <span class="badge badge-success">${flow.docType}</span>
+                            <span class="explore-node-badge badge badge-info" style="text-transform:none;" onclick="e=event; e.stopPropagation(); navigateToNode('${flow.id}')">Explore Lineage</span>
+                        </div>
+                        <svg class="collapsible-arrow" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                    </div>
+                    <div class="collapsible-content">
+                        <div class="collapsible-inner">
+                            <div class="details-grid">
+                                <div class="details-column">
+                                    <div class="details-row">
+                                        <div class="details-label">Purpose</div>
+                                        <div class="details-value">Monitors folder and triggers rename and route desktop automation for ${flow.city}'s ${flow.docType} scans.</div>
+                                    </div>
+                                    <div class="details-row">
+                                        <div class="details-label">Trigger Event</div>
+                                        <div class="details-value">${flow.trigger}</div>
+                                    </div>
+                                    <div class="details-row">
+                                        <div class="details-label">Source Folder Path</div>
+                                        <div class="details-value"><code>${flow.source}</code></div>
+                                    </div>
+                                </div>
+                                <div class="details-column">
+                                    <div class="details-row">
+                                        <div class="details-label">Target Desktop Flow Called</div>
+                                        <div class="details-value"><a href="javascript:void(0)" onclick="openDetailPanel('desktop', 'df-01')"><code>${flow.desktopFlowsCalled}</code></a></div>
+                                    </div>
+                                    <div class="details-row">
+                                        <div class="details-label">Destination Directory (ImageRight)</div>
+                                        <div class="details-value"><code>${flow.dest}</code></div>
+                                    </div>
+                                    <div class="details-row">
+                                        <div class="details-label">Error Handling Status</div>
+                                        <div class="details-value" style="color:var(--danger); font-weight:600;">${flow.errorHandling}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 1rem; display:flex; justify-content: flex-end;">
+                                <button class="btn btn-sm btn-primary" onclick="openDetailPanel('cloud', '${flow.id}')">View Full Detail Panel</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        // Render Desktop Flows list
+        let activeDFRAG = "";
+        function filterDFRAG(rag) {
+            activeDFRAG = rag;
+            
+            const buttons = document.querySelectorAll('#sec-desktop-flows .filter-controls button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            if (rag === "") document.getElementById('btn-df-all').classList.add('active');
+            else if (rag === "red") document.getElementById('btn-df-red').classList.add('active');
+            else if (rag === "amber") document.getElementById('btn-df-amber').classList.add('active');
+            else if (rag === "green") document.getElementById('btn-df-green').classList.add('active');
+            
+            renderDesktopFlows();
+        }
+
+        function renderDesktopFlows() {
+            const list = document.getElementById("desktop-flows-list");
+            list.innerHTML = "";
+            
+            const searchQuery = document.getElementById("global-search").value.toLowerCase();
+            
+            let filtered = desktopFlows.filter(flow => {
+                if (activeDFRAG && flow.rag !== activeDFRAG) return false;
+                if (searchQuery) {
+                    return flow.name.toLowerCase().includes(searchQuery) ||
+                           flow.purpose.toLowerCase().includes(searchQuery) ||
+                           flow.apps.toLowerCase().includes(searchQuery) ||
+                           flow.files.toLowerCase().includes(searchQuery);
+                }
+                return true;
+            });
+            
+            if (filtered.length === 0) {
+                list.innerHTML = `<div class="card" style="text-align:center; color:var(--text-tertiary);">No Desktop Flows matched your search parameters.</div>`;
+                return;
+            }
+            
+            filtered.forEach((flow) => {
+                const cardId = `df-${flow.id}`;
+                const card = document.createElement("div");
+                card.className = "collapsible-card";
+                card.id = cardId;
+                
+                card.innerHTML = `
+                    <div class="collapsible-header" onclick="toggleCard('${cardId}')" data-tooltip="Click to toggle details for this Desktop Flow.">
+                        <div class="collapsible-title-block">
+                            <span class="rag-indicator rag-${flow.rag}"></span>
+                            <span class="collapsible-title">${flow.name}</span>
+                            <span class="badge badge-info">${flow.rag === 'red' ? 'Critical Action Required' : 'Operational'}</span>
+                            <span class="explore-node-badge badge badge-info" style="text-transform:none;" onclick="e=event; e.stopPropagation(); navigateToNode('${flow.id}')">Explore Lineage</span>
+                        </div>
+                        <svg class="collapsible-arrow" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                    </div>
+                    <div class="collapsible-content">
+                        <div class="collapsible-inner">
+                            <div class="details-grid">
+                                <div class="details-column">
+                                    <div class="details-row">
+                                        <div class="details-label">Description / Functional Purpose</div>
+                                        <div class="details-value">${flow.purpose}</div>
+                                    </div>
+                                    <div class="details-row">
+                                        <div class="details-label">Input Parameters</div>
+                                        <div class="details-value"><code>${flow.inputs}</code></div>
+                                    </div>
+                                    <div class="details-row">
+                                        <div class="details-label">Applications Integrated</div>
+                                        <div class="details-value">${flow.apps}</div>
+                                    </div>
+                                </div>
+                                <div class="details-column">
+                                    <div class="details-row">
+                                        <div class="details-label">File & Network Dependencies</div>
+                                        <div class="details-value"><code>${flow.files}</code></div>
+                                    </div>
+                                    <div class="details-row">
+                                        <div class="details-label">Error Handling Mechanism</div>
+                                        <div class="details-value" style="font-weight:600; color:${flow.rag === 'green' ? 'var(--success)' : 'var(--danger)'};">${flow.error}</div>
+                                    </div>
+                                    <div class="details-row">
+                                        <div class="details-label">Desktop Execution Mode</div>
+                                        <div class="details-value">Attended Mode (Session state lock dependency)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 1rem; display:flex; justify-content: flex-end;">
+                                <button class="btn btn-sm btn-primary" onclick="openDetailPanel('desktop', '${flow.id}')">View Full Detail Panel</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        // Render Risks Table
+        let activeHeatmapCell = "";
+        function renderRisks() {
+            const tbody = document.querySelector("#table-risks tbody");
+            tbody.innerHTML = "";
+            
+            const selectedRating = document.getElementById("filter-risk-rating").value;
+            const selectedCat = document.getElementById("filter-risk-cat").value;
+            const searchQuery = document.getElementById("global-search").value.toLowerCase();
+            
+            let filtered = risks.filter(risk => {
+                if (selectedRating && risk.rating !== selectedRating) return false;
+                if (selectedCat && risk.category !== selectedCat) return false;
+                
+                // Heatmap specific cell filtering
+                if (selectedHeatmapCell.likelihood && risk.likelihood !== selectedHeatmapCell.likelihood) return false;
+                if (selectedHeatmapCell.impact && risk.impact !== selectedHeatmapCell.impact) return false;
+
+                if (searchQuery) {
+                    return risk.description.toLowerCase().includes(searchQuery) ||
+                           risk.category.toLowerCase().includes(searchQuery) ||
+                           risk.mitigation.toLowerCase().includes(searchQuery);
+                }
+                return true;
+            });
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-tertiary);">No risks match your filter settings.</td></tr>`;
+                return;
+            }
+            
+            filtered.forEach(risk => {
+                const tr = document.createElement("tr");
+                tr.style.cursor = "pointer";
+                tr.onclick = () => openDetailPanel('risk', risk.id);
+                tr.setAttribute('data-tooltip', 'Click to open details for this risk.');
+                
+                let badgeClass = "badge-info";
+                if (risk.rating === "Critical") badgeClass = "badge-danger";
+                else if (risk.rating === "High") badgeClass = "badge-warning";
+                else if (risk.rating === "Medium") badgeClass = "badge-warning";
+                else if (risk.rating === "Low") badgeClass = "badge-success";
+                
+                tr.innerHTML = `
+                    <td style="font-weight:700; color:var(--accent);">${risk.id}</td>
+                    <td style="max-width:320px;"><strong>${risk.category}</strong>: ${risk.description}</td>
+                    <td>${risk.category}</td>
+                    <td><span class="badge ${badgeClass}">${risk.rating}</span></td>
+                    <td style="max-width:320px; font-size:0.8rem; color:var(--text-secondary);">${risk.mitigation}</td>
+                    <td><span class="badge badge-info">${risk.status}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Toggle card collapse
+        function toggleCard(cardId) {
+            const card = document.getElementById(cardId);
+            if (!card) return;
+            card.classList.toggle("expanded");
+        }
+
+        // Detail Panel control
+        function openDetailPanel(type, id) {
+            const overlay = document.getElementById("detail-overlay");
+            const panel = document.getElementById("detail-panel");
+            const titleEl = document.getElementById("panel-title");
+            const bodyEl = document.getElementById("panel-body");
+            
+            let data = null;
+            let content = "";
+            
+            if (type === 'cloud') {
+                data = cloudFlows.find(f => f.id === id);
+                if (data) {
+                    titleEl.innerText = data.name;
+                    content = `
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">Operational Context</div>
+                            <div class="detail-panel-text">
+                                <strong>District Location:</strong> ${data.city} (District ${data.district})<br>
+                                <strong>Workflow Flag (QLA_Workflow):</strong> <code>${data.workflow}</code><br>
+                                <strong>Staging Document Type (APPTYPE):</strong> <code>${data.appType}</code><br>
+                                <strong>Index Description (DOCDESC):</strong> ${data.docType === 'MiscScan' ? 'Miscellaneous' : 'Application'}
+                            </div>
+                        </div>
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">Trigger Event</div>
+                            <div class="detail-panel-text">${data.trigger}</div>
+                        </div>
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">Source Polling Folder</div>
+                            <div class="detail-panel-text"><code>${data.source}</code></div>
+                        </div>
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">Destination staging path</div>
+                            <div class="detail-panel-text"><code>\\\\dli-atl-dcfp01\\ImageRight\\${data.dest}</code></div>
+                        </div>
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">Child Integration Flow</div>
+                            <div class="detail-panel-text">
+                                Invokes: <a href="javascript:void(0)" onclick="openDetailPanel('desktop', 'df-01')"><strong>SA-RenameScannedApps</strong></a> (Attended Execution Mode)<br>
+                                Connection Target: <code>damco_shareduiflow_68b83</code>
+                            </div>
+                        </div>
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">Error Handling & Alerting</div>
+                            <div class="detail-panel-text" style="color:var(--danger); font-weight:600;">
+                                None identified from solution package.
+                            </div>
+                        </div>
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">Associated Risks & Recommendations</div>
+                            <div class="detail-panel-text">
+                                <strong>Risk R-002:</strong> Cloud flow fails silently on runner error. Apply Teams card alerts on run-after failures.<br>
+                                <strong>Risk R-007:</strong> Relies on a single data gateway. Formulate fallback gateway clustering.
+                            </div>
+                        </div>
+                    `;
+                }
+            } else if (type === 'desktop') {
+                data = desktopFlows.find(f => f.id === id);
+                if (data) {
+                    titleEl.innerText = data.name;
+                    content = `
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">Functional Purpose</div>
+                            <div class="detail-panel-text">${data.purpose}</div>
+                        </div>
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">Execution mode</div>
+                            <div class="detail-panel-text">Attended Desktop Runner (Requires Active Windows Session login)</div>
+                        </div>
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">Input Parameters</div>
+                            <div class="detail-panel-text"><code>${data.inputs}</code></div>
+                        </div>
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">Output Parameters</div>
+                            <div class="detail-panel-text"><code>${data.outputs}</code></div>
+                        </div>
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">Integrated Target Applications</div>
+                            <div class="detail-panel-text">${data.apps}</div>
+                        </div>
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">File & Server Dependencies</div>
+                            <div class="detail-panel-text"><code>${data.files}</code></div>
+                        </div>
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">RAG Status & Error Handling</div>
+                            <div class="detail-panel-text" style="font-weight: 500; color: ${data.rag === 'green' ? 'var(--success)' : 'var(--danger)'}">
+                                <strong>Status:</strong> ${data.rag.toUpperCase()}<br>
+                                <strong>Details:</strong> ${data.error}
+                            </div>
+                        </div>
+                    `;
+                }
+            } else if (type === 'risk') {
+                data = risks.find(r => r.id === id);
+                if (data) {
+                    titleEl.innerText = `${data.id}: ${data.category}`;
+                    content = `
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">Risk Description</div>
+                            <div class="detail-panel-text">${data.description}</div>
+                        </div>
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">RAG Audit Statistics</div>
+                            <div class="detail-panel-text">
+                                <strong>Likelihood:</strong> ${data.likelihood}<br>
+                                <strong>Operational Impact:</strong> ${data.impact}<br>
+                                <strong>Overall Rating:</strong> <span class="badge ${data.rating === 'Critical' ? 'badge-danger' : 'badge-warning'}">${data.rating}</span>
+                            </div>
+                        </div>
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">Recommended Mitigation Strategy</div>
+                            <div class="detail-panel-text" style="color:var(--success); font-weight: 500;">
+                                ${data.mitigation}
+                            </div>
+                        </div>
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">Audit Owner & Status</div>
+                            <div class="detail-panel-text">
+                                <strong>Owner:</strong> Technical Architect (Tarandeep)<br>
+                                <strong>Status:</strong> ${data.status} (Open Review)
+                            </div>
+                        </div>
+                    `;
+                }
+            } else if (type === 'system') {
+                data = depNodes[id];
+                if (data) {
+                    titleEl.innerText = data.name;
+                    content = `
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">Component Category</div>
+                            <div class="detail-panel-text"><strong>${data.type}</strong></div>
+                        </div>
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">Operational Description</div>
+                            <div class="detail-panel-text">${data.desc}</div>
+                        </div>
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">Upstream Connections</div>
+                            <div class="detail-panel-text">
+                                ${data.upstream.map(u => {
+                                    const node = depNodes[u] || cloudFlows.find(f => f.id === u);
+                                    const name = node ? node.name : u;
+                                    return `• ${name}<br>`;
+                                }).join('') || 'None.'}
+                            </div>
+                        </div>
+                        <div class="detail-panel-section">
+                            <div class="detail-panel-section-title">Downstream Dependencies</div>
+                            <div class="detail-panel-text">
+                                ${data.downstream.map(d => {
+                                    const node = depNodes[d];
+                                    const name = node ? node.name : d;
+                                    return `• ${name}<br>`;
+                                }).join('') || 'None.'}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            bodyEl.innerHTML = content;
+            overlay.style.display = "block";
+            setTimeout(() => {
+                overlay.style.opacity = "1";
+                panel.style.right = "0";
+            }, 50);
+        }
+
+        function closeDetailPanel() {
+            const overlay = document.getElementById("detail-overlay");
+            const panel = document.getElementById("detail-panel");
+            
+            panel.style.right = "-500px";
+            overlay.style.opacity = "0";
+            setTimeout(() => {
+                overlay.style.display = "none";
+            }, 300);
+        }
+
+        // Interactive Dependency Explorer controls
+        function initDepSelector() {
+            const select = document.getElementById("dep-node-selector");
+            select.innerHTML = "";
+            
+            // Add desktop flows, systems, credentials
+            Object.keys(depNodes).forEach(key => {
+                const opt = document.createElement("option");
+                opt.value = key;
+                opt.innerText = depNodes[key].name;
+                select.appendChild(opt);
+            });
+            
+            // Trigger baseline select
+            select.value = "df-rename-scanned-apps";
+            selectDepNode("df-rename-scanned-apps");
+        }
+
+        function selectDepNode(nodeId) {
+            const select = document.getElementById("dep-node-selector");
+            select.value = nodeId;
+            
+            const node = depNodes[nodeId];
+            if (!node) return;
+            
+            // Fill Active Node Box
+            const activeBox = document.getElementById("dep-active-node");
+            activeBox.innerHTML = `<strong>${node.name}</strong><br><span style="font-size:0.7rem; opacity:0.8;">${node.type}</span>`;
+            activeBox.setAttribute("data-node-id", nodeId);
+            
+            // Fill Upstream nodes
+            const upstreamRow = document.getElementById("dep-upstream-row");
+            upstreamRow.innerHTML = "";
+            if (node.upstream.length === 0) {
+                upstreamRow.innerHTML = `<div style="font-size:0.8rem; color:var(--text-tertiary); font-style:italic;">No upstream triggers</div>`;
+            } else {
+                // Group cloud flows if too many to display clean
+                const isCloudGroup = node.upstream.some(u => u.startsWith('cf-'));
+                if (isCloudGroup && node.upstream.length > 3) {
+                    const box = document.createElement("div");
+                    box.className = "dep-node-box";
+                    box.innerHTML = `<strong>25 Polling Cloud Flows</strong><br><span style="font-size:0.7rem; opacity:0.8;">District Triggers</span>`;
+                    box.onclick = () => {
+                        document.getElementById('sec-cloud-flows').scrollIntoView();
+                    };
+                    upstreamRow.appendChild(box);
+                } else {
+                    node.upstream.forEach(u => {
+                        const rnode = depNodes[u];
+                        if (rnode) {
+                            const box = document.createElement("div");
+                            box.className = "dep-node-box";
+                            box.innerHTML = `<strong>${rnode.name}</strong><br><span style="font-size:0.7rem; opacity:0.8;">${rnode.type}</span>`;
+                            box.onclick = () => selectDepNode(u);
+                            upstreamRow.appendChild(box);
+                        }
+                    });
+                }
+            }
+            
+            // Fill Downstream nodes
+            const downstreamRow = document.getElementById("dep-downstream-row");
+            downstreamRow.innerHTML = "";
+            if (node.downstream.length === 0) {
+                downstreamRow.innerHTML = `<div style="font-size:0.8rem; color:var(--text-tertiary); font-style:italic;">No downstream dependencies</div>`;
+            } else {
+                node.downstream.forEach(d => {
+                    const rnode = depNodes[d];
+                    if (rnode) {
+                        const box = document.createElement("div");
+                        box.className = "dep-node-box";
+                        box.innerHTML = `<strong>${rnode.name}</strong><br><span style="font-size:0.7rem; opacity:0.8;">${rnode.type}</span>`;
+                        box.onclick = () => selectDepNode(d);
+                        downstreamRow.appendChild(box);
+                    }
+                });
+            }
+            
+            // Update node description
+            document.getElementById("dep-node-desc").innerText = `${node.type}: ${node.desc}`;
+        }
+        
+        function openActiveNodeDetails() {
+            const activeBox = document.getElementById("dep-active-node");
+            const nodeId = activeBox.getAttribute("data-node-id");
+            openDetailPanel('system', nodeId);
+        }
+        
+        function navigateToNode(nodeId) {
+            document.getElementById('sec-explorer').scrollIntoView();
+            // If it is a cloud flow, select df-rename-scanned-apps since it's the desktop recipient, or show group
+            if (nodeId.startsWith('cf-')) {
+                selectDepNode('df-rename-scanned-apps');
+            } else {
+                selectDepNode(nodeId);
+            }
+        }
+
+        // Risk Heatmap filtering
+        function filterHeatmap(likelihood, impact, elementId) {
+            // Remove selection class from all heat cells
+            document.querySelectorAll(".risk-map-cell").forEach(cell => cell.classList.remove("selected"));
+            
+            if (selectedHeatmapCell.elementId === elementId) {
+                // Clear selection
+                selectedHeatmapCell = { likelihood: "", impact: "", elementId: "" };
+            } else {
+                selectedHeatmapCell = { likelihood, impact, elementId };
+                document.getElementById(elementId).classList.add("selected");
+            }
+            
+            renderRisks();
+        }
+
+        function resetRiskFilters() {
+            selectedHeatmapCell = { likelihood: "", impact: "", elementId: "" };
+            document.querySelectorAll(".risk-map-cell").forEach(cell => cell.classList.remove("selected"));
+            document.getElementById("filter-risk-rating").value = "";
+            document.getElementById("filter-risk-cat").value = "";
+            renderRisks();
+        }
+
+        // Tooltip Engine
+        function initTooltips() {
+            const tooltip = document.getElementById("dynamic-tooltip");
+            
+            document.addEventListener("mouseover", (e) => {
+                const target = e.target.closest("[data-tooltip]");
+                if (target) {
+                    tooltip.innerHTML = target.getAttribute("data-tooltip");
+                    tooltip.style.display = "block";
+                    tooltip.style.opacity = "1";
+                }
+            });
+            
+            document.addEventListener("mousemove", (e) => {
+                if (tooltip.style.display === "block") {
+                    // Prevent tooltip from overflowing the viewport
+                    let x = e.pageX + 15;
+                    let y = e.pageY + 15;
+                    if (x + 280 > window.innerWidth) {
+                        x = e.pageX - 295;
+                    }
+                    tooltip.style.left = x + "px";
+                    tooltip.style.top = y + "px";
+                }
+            });
+            
+            document.addEventListener("mouseout", (e) => {
+                if (e.target.closest("[data-tooltip]")) {
+                    tooltip.style.opacity = "0";
+                    tooltip.style.display = "none";
+                }
+            });
+        }
+
+        // Theme Toggle script with Mermaid integration
+        const themeBtn = document.getElementById("theme-toggle-btn");
+        themeBtn.addEventListener("click", () => {
+            const currentTheme = document.documentElement.getAttribute("data-theme");
+            const newTheme = currentTheme === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", newTheme);
+            
+            // Update Toggle Icon
+            const icon = document.getElementById("theme-icon");
+            if (newTheme === "dark") {
+                icon.innerHTML = `<path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.01c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>`;
+            } else {
+                icon.innerHTML = `<path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/>`;
+            }
+            
+            // Re-render Mermaid with new theme
+            renderMermaid();
+        });
+
+        // Initialize and re-render Mermaid diagrams (v10.x compatible)
+        let mermaidRenderCount = 0;
+        async function renderMermaid() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const theme = isDark ? 'dark' : 'default';
+            mermaidRenderCount++;
+            
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: theme,
+                flowchart: { useMaxWidth: true, htmlLabels: false, curve: 'basis' },
+                sequence: { useMaxWidth: true },
+                securityLevel: 'loose'
+            });
+
+            const elements = document.querySelectorAll('.mermaid-container');
+            for (let i = 0; i < elements.length; i++) {
+                const container = elements[i];
+                const srcEl = container.querySelector('.mermaid-src');
+                let drawEl = container.querySelector('.mermaid-draw');
+                
+                if (!drawEl) {
+                    drawEl = document.createElement('div');
+                    drawEl.className = 'mermaid-draw';
+                    container.appendChild(drawEl);
+                }
+                
+                const graphDef = srcEl.textContent.trim();
+                const uniqueId = 'mermaid-graph-' + mermaidRenderCount + '-' + i;
+                
+                try {
+                    const { svg } = await mermaid.render(uniqueId, graphDef);
+                    drawEl.innerHTML = svg;
+                } catch (err) {
+                    console.error('Mermaid render error for diagram ' + i + ':', err);
+                    drawEl.innerHTML = '<p style="color:var(--danger); padding:1rem;">Diagram rendering error. Check console for details.</p>';
+                }
+            }
+        }
+
+        // Setup DOM Listeners & Actions
+        document.addEventListener("DOMContentLoaded", () => {
+            renderCloudFlows();
+            renderDesktopFlows();
+            renderRisks();
+            initDepSelector();
+            renderMermaid();
+            initTooltips();
+            
+            // Global search
+            document.getElementById("global-search").addEventListener("input", () => {
+                renderCloudFlows();
+                renderDesktopFlows();
+                renderRisks();
+            });
+            
+            // District and DocType filters
+            document.getElementById("filter-cf-district").addEventListener("change", renderCloudFlows);
+            document.getElementById("filter-cf-type").addEventListener("change", renderCloudFlows);
+            document.getElementById("filter-risk-rating").addEventListener("change", renderRisks);
+            document.getElementById("filter-risk-cat").addEventListener("change", renderRisks);
+            
+            // Navigation scrollspy highlighter
+            const sections = document.querySelectorAll('.section');
+            const navItems = document.querySelectorAll('.sidebar-nav li');
+            
+            window.addEventListener('scroll', () => {
+                let currentSectionId = "";
+                sections.forEach(sec => {
+                    const top = sec.offsetTop - parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) - 100;
+                    if (window.scrollY >= top) {
+                        currentSectionId = sec.getAttribute('id');
+                    }
+                });
+                
+                navItems.forEach(item => {
+                    item.classList.remove('active');
+                    const link = item.querySelector('a');
+                    if (link && link.getAttribute('href') === `#${currentSectionId}`) {
+                        item.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
